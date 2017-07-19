@@ -24,7 +24,9 @@ ${phone}                         1234567890
 ${address_1}                     Street 1
 ${city}                          New York
 ${state}                         NY
+${post code}                     124456
 ${country}                       United States of America
+${mycompany}                     MyCompany
 # payment
 
 ${agree}                         xpath=//label/input
@@ -96,24 +98,14 @@ ${courier_select}    xpath=//div[@ng-model='$ctrl.order.ship_via_id']/div/input
 ${courier_select_list}     xpath=//div[@ng-show='$select.open']//div[@class='ng-binding ng-scope']
 ${items_field_order}      xpath=//div[@class='modal-content']//input[@id='_value']
 
+# address book
 
+${company_field_address}    xpath=//input[@ng-model='$ctrl.address.company']
+${full_name_field_address}  xpath=//input[@ng-model='$ctrl.address.addressee']
+${address_1_field_address}      xpath=//input[@ng-model='$ctrl.address.address_1']
+${city_field_address}        xpath=//input[@ng-model='$ctrl.address.city']
+${state_field_address}       xpath=//input[@ng-model='$ctrl.address.state']
+${postal_code_field_address}  xpath=//input[@ng-model='$ctrl.address.postal_code']
+${country_select_address}    xpath=//div[@ng-model='$ctrl.address.country']/div/input
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+${long_symbols}            ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss

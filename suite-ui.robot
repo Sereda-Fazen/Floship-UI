@@ -62,6 +62,8 @@ Registration for new user
     wait until page contains            Company Address
     click button                        Register
     Registration Empty Fields           8
+    Capture Page Screenshot             ${TEST NAME}-{index}.png
+    Full Valid Data with Long Symbols
     ##Invalid Data Email
     Registration Invalid Data           client_address.email           test
     Registration Invalid Data           website                        test
@@ -81,10 +83,10 @@ Registration for new user
     Invalid Card Number                 This field may not be blank           A valid integer is required           This field may not be blank
     Create Card Number                  ${card num}       ${exp date}           ${cvv}
     wait until page contains            We are preparing your warehouse
+    Capture Page Screenshot             ${TEST NAME}-{index}.png
 
 Add New Company in Admin Panel
     Go To                               ${SERVER}
-    # Include new user's company
     Login                                cutoreno@p33.org         qw1as2zx3po
     Wait Until Page Contains             Floship Administration
     Capture Page Screenshot              ${TEST NAME}-{index}.png
@@ -92,18 +94,71 @@ Add New Company in Admin Panel
     wait until page contains             The client "${get_company}" was changed successfully.
     Capture Page Screenshot             ${TEST NAME}-{index}.png
 
-Dashboard (New Product)
+Dashboard (Add New Product)
     [Tags]                              Product
     Go To                                ${SERVER}
     Login                               ${REG EMAIL}         12345678
     Wait Until Page Contains            Introduction
     Add New Product                     Add Product
+
+Dashboard (Add New ASN)
+     [Tags]                              ASN
     Go To                                ${SERVER}
+    Login                               ${REG EMAIL}         12345678
     Header title block                  Advanced Shipping Notice
     Add New ASN                         Add ASN          XM          FASN
     ${id_ship}=                         Get Id
     log to console                      ${id_ship}
-    Header link                         Shipping Options
+
+Dashboard (Add New Shipping Options)
+    [Tags]                              Shipping
+    Go To                               ${SERVER}
+    Login                               ${REG EMAIL}         12345678
     Add Shipping Options                Add Shipping Option      SOM01           HKPost Parcel
+
+Dashboard (Add New Group Item)
+    [Tags]                              GroupItem
+    Go To                               ${SERVER}
+    Login                               ${REG EMAIL}         12345678
     Add Group Items List                Add Group Items           XM            XMO1
-    Add Order                           Add Order           XM       XMO1      ${id_ship}
+
+Dashboard (Add New Order)
+    [Tags]                              Order
+    Go To                                ${SERVER}
+    Login                               ${REG EMAIL}         12345678
+    Add Order                           Add Order           XM       XMO1      F
+    ${id_ship_order}=                   Get Id Order
+    log to console                      ${id_ship_order}
+
+Dashboard (Add New Address Book)
+    [Tags]                              AddressBook
+    Go To                                ${SERVER}
+    Login                               ${REG EMAIL}         12345678
+    Add Address Book                    Add Address
+
+Check Links on Dasboard
+    [Tags]                             Links
+    Go To                              ${SERVER}
+    Login                              ${REG EMAIL}         12345678
+    wait until page contains             Dashboard
+    Check Links Orders
+    Check Links Inventory
+    Check Links Billing
+    Check Links in Integrations
+
+Change Password
+    [Tags]                            ChangePassword
+    Go To                             ${SERVER}
+    Login                             ${REG EMAIL}         12345678
+    wait until page contains          Dashboard
+    Old password incorectly           12345678         12345678
+    Password do not match             12345678         12345678
+    Change Password                   12345678         qwerty123!          qwerty123!
+
+Login With New Password
+   [Tags]                            NewPass
+    Go To                            ${SERVER}
+    Login                            ${REG EMAIL}         12345678
+    wait until page contains         Login or password incorrect
+    Login                            ${REG EMAIL}         qwerty123!
+    wait until page contains         Dashboard
