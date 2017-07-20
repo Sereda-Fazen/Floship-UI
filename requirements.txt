@@ -1,29 +1,6 @@
-sudo apt-get install xvfb
-apt install wget
-wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-apt-get update
-apt-get install google-chrome-stable
-
-# Geckodriver
-wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz
-sudo sh -c 'tar -x geckodriver -zf geckodriver-v0.16.1-linux64.tar.gz -O > /usr/bin/geckodriver'
-sudo chmod +x /usr/bin/geckodriver
-rm geckodriver-v0.16.1-linux64.tar.gz
-
-# Chromedriver
-wget https://chromedriver.storage.googleapis.com/2.29/chromedriver_linux64.zip
-unzip chromedriver_linux64.zip
-sudo chmod +x chromedriver
-sudo mv chromedriver /usr/bin/
-
-
-# Libs:
-apt-get -y install python3-pip
 pip3 install robotframework-python3
 pip3 install robotframework-xvfb
 pip3 install robotframework-imaplibrary
-apt-get -y install python3-setuptools
 pip3 install -U https://github.com/HelioGuilherme66/robotframework-selenium2library/archive/v1.8.2b1.tar.gz
 pip3 install pyyaml
 pip3 install requests
