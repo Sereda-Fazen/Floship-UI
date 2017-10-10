@@ -2,5 +2,5 @@ robotframework
 robotframework-selenium2library
 robotframework-xvfb
 robotframework-imaplibrary
-pip install requests
+
 
