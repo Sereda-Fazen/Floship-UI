@@ -1,10 +1,5 @@
-pip3 install robotframework-python3
-pip3 install robotframework-xvfb
-pip3 install robotframework-imaplibrary
-pip3 install -U https://github.com/HelioGuilherme66/robotframework-selenium2library/archive/v1.8.2b1.tar.gz
-pip3 install pyyaml
-pip3 install requests
-
-
+robotframework
+robotframework-seleniumlibrary
+robotframework-xvfb
 
 
