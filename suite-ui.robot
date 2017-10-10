@@ -6,7 +6,7 @@ Test Teardown                           Delete All Cookies
 Suite Teardown                          Close All Browsers
 
 *** Test Cases ***
-Test
+Test for Codeship
     [Tags]                               Login
     ${email}=                          Get Email
     Set Suite Variable                  ${REG_EMAIL}                ${email}
