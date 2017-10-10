@@ -10,7 +10,6 @@ Library                         XvfbRobot
 #Library                         AllureReportLibrary        Allure
 Library                         plugins.py
 #Library                         remote_inspect.py
-Library                         TempMail.py
 
 *** Keywords ***
 
