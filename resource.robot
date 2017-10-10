@@ -28,7 +28,7 @@ Setup Tests
 
                          ${dev}
 
-Login test          [Arguments]              ${email}                  ${pass}
+Login           [Arguments]              ${email}                  ${pass}
    Wait Until Page Contains Element       xpath=//h3[contains(.,"Login")]
    Input Text                          ${login_email}               ${email}
    Input Text                          ${login_pass}                ${pass}
