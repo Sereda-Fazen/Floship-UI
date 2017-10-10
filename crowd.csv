@@ -1,0 +1,2 @@
+OrderID*,Insurance Value (in USD),Company,Contact Name*,Address 1*,Address 2,City,State,Zip Code,Country Code* (2-letter),Phone*,Email,Unit Value (in USD),Shipping Option,Quantity*,Item SKU*,Packaging Item
+ID_1023662,10,ACME INC,JANE DARE,123 ACME LANE,,SAMPLE CITY 1,IL,12345,US,(555) 555-5555,JANE@EXAMPLE.COM,1.23,Free Shipping,1,SKU1922854,SHIP-READY

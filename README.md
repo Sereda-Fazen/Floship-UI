@@ -4,15 +4,17 @@
 
 * for the running of all suite tests:
 ```bash
-robot --outputdir Result  suite-ui.robot
+robot --outputdir Result  suite-ui-admin.robot (all suite for admin)
+robot --outputdir Result  suite-ui-client.robot (all suite for client)
+robot --outputdir Result suite-ui-admin.robot suite-ui-client.robot (all suites)
 ```
 You can select browser (Google Chrome or Mozilla Firefox) using "" key, e.g:
 ```bash
-robot --outputdir Result --variablefile firefox_resource.yaml suite-ui.robot
+robot --outputdir Result --variablefile firefox_resource.yaml suite-ui-admin.robot suite-ui-client.robot
 ```
 or
 ```bash
-robot --outputdir Result --variablefile chrome_resource.yaml suite-ui.robot
+robot --outputdir Result --variablefile chrome_resource.yaml suite-ui-admin.robot suite-ui-client.robot
 ```
 > NOTE: Google Chrome is selected as default browser
 
@@ -22,7 +24,7 @@ robot --outputdir Result --variablefile chrome_resource.yaml suite-ui.robot
 ```
 and run
 ```
-robot --outputdir Result -i Login suite-ui.robot
+robot --outputdir Result -i Login suite-ui-admin.robot suite-ui-client.robot
 ```
 
 > NOTE: The command is "--outputdir Result" create a folder in the project where can find (Screenshots, Errors, and other reports)
@@ -30,3 +32,5 @@ robot --outputdir Result -i Login suite-ui.robot
 You can find more information about Robot Framework by this [link](http://robotframework.org/)
 
 In order to show the result of tests it enought to open the file - log.html
+
+

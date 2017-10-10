@@ -10,6 +10,7 @@ Library                         XvfbRobot
 #Library                         AllureReportLibrary        Allure
 Library                         plugins.py
 #Library                         remote_inspect.py
+Library                         TempMail.py
 
 *** Keywords ***
 
@@ -20,7 +21,7 @@ On Fail
     Set Screenshot Directory             ${OUTPUTDIR}/Screenshots/
 
 Setup Tests
-    Start Virtual Display               ${WIDTH}    ${HEIGHT}
+    #Start Virtual Display               ${WIDTH}    ${HEIGHT}
     Open Browser                         ${SERVER}         ${BROWSER}
     set window size                      ${WIDTH}    ${HEIGHT}
     Register Keyword To Run On Failure   On Fail
