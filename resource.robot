@@ -27,13 +27,7 @@ Setup Tests
     Register Keyword To Run On Failure   On Fail
     Set Screenshot Directory             ${OUTPUTDIR}/Screenshots/
 
-Open Browser with Dev Tools                       [Arguments]         ${dev}
-    ${dev}=                               dev tools
-    log to console                        ${dev}
-    [return]                              ${dev}
-    ${options}=                           Evaluate            sys.modules['selenium.webdriver'].ChromeOptions()   sys
-    Create WebDriver                      Chrome              chrome_options=${options}
-    Go To                                 ${dev}
+                         ${dev}
 
 Login           [Arguments]              ${email}                  ${pass}
    Wait Until Page Contains Element       xpath=//h3[contains(.,"Login")]
