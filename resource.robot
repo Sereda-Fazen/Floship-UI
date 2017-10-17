@@ -12,7 +12,6 @@ Library                         XvfbRobot
 Library                         plugins.py
 #Library                         remote_inspect.py
 
-
 *** Keywords ***
 
 On Fail
