@@ -1,6 +1,4 @@
-robotframework==3.5
-robotframework-seleniumlibrary
+robotframework
+robotframework-seleniuml2ibrary
 robotframework-xvfb
 robotframework-imaplibrary
-selenium==3.X
-
