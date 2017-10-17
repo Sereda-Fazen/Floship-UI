@@ -20,7 +20,6 @@ On Fail
     Capture Page Screenshot              ${TEST NAME}-{index}.png
     Set Screenshot Directory             ${OUTPUTDIR}/Screenshots/
 
-
 Setup Tests
     Start Virtual Display               ${WIDTH}    ${HEIGHT}
     Open Browser                         ${SERVER}         ${BROWSER}
