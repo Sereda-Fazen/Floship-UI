@@ -18,7 +18,7 @@ ${login_admin}                  cutoreno@p33.org
 ${pass_admin}                   qw1as2zx3po
 
 
-${MAIL_HOST}                    smtp.gmail.com
+${MAIL_HOST}                    imap.gmail.com
 ${MAIL_USER}                    auto.testfloship@gmail.com
 
 ${client mail}                  test@floship.com
