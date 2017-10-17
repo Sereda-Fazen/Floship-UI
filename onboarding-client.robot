@@ -5,8 +5,6 @@ Suite Setup                             Setup Tests
 Suite Teardown                          Close All Browsers
 
 
-
-
 *** Test Cases ***
 TC195 - Login in Admin Panel (valid)
     [Tags]                               Login
