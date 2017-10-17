@@ -11,7 +11,7 @@ Library                         XvfbRobot
 
 Library                         plugins.py
 #Library                         remote_inspect.py
-Library                         TempMail.py
+
 
 *** Keywords ***
 
