@@ -4,14 +4,14 @@ Library                         Collections
 Library                         DateTime
 Library                         String
 Resource                        locators.robot
-Library                         SeleniumLibrary     timeout=40     run_on_failure=On Fail
+Library                         Selenium2Library     timeout=40     run_on_failure=On Fail
 Library                         ImapLibrary
 Library                         XvfbRobot
 #Library                         AllureReportLibrary        Allure
 
 Library                         plugins.py
 #Library                         remote_inspect.py
-Library                         TempMail.py
+#Library                         TempMail.py
 
 *** Keywords ***
 
