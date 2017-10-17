@@ -261,9 +261,9 @@ TC741 - Open order for check as admin
     check labels order (Admin)              Original Transaction Date
     check labels order (Admin)              Approval Eligibility Date
 
-    Summary block (Order)           Pick and Pack           $ 10.00
-    Summary block (Order)           Estimated           $ 109.55
-    wait until page contains element    xpath=//div[@class="panel-body"][contains(.,"Total") and contains(.,"$ 10.00")]
+    Summary block (Order)           Pick and Pack           $ 567.00
+    Summary block (Order)           Estimated           $ 0.00
+    wait until page contains element    xpath=//div[@class="panel-body"][contains(.,"Total") and contains(.,"$ 567.00")]
 
     check item(SKU) after edit            SKU            ${sku_}
     check item(SKU) after edit            Unit Type       	Base Item

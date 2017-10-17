@@ -17,6 +17,7 @@ ${Log in}                       xpath=//a[@class="btn btn-primary"]
 ${login_admin}                  cutoreno@p33.org
 ${pass_admin}                   qw1as2zx3po
 
+
 ${MAIL_HOST}                    imap.gmail.com
 ${MAIL_USER}                    auto.testfloship@gmail.com
 
