@@ -5,8 +5,6 @@ Suite Setup                             Setup Tests
 Suite Teardown                          Close All Browsers
 
 
-
-
 *** Test Cases ***
 TC825 - Preparing (create client)
     [Tags]                        CreateUser
