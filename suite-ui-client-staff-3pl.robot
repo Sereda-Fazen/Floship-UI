@@ -88,8 +88,6 @@ TC829 - Preparing (staff user)
     Logout Client
 
 
-
-
 TC826 - Preparing Product (create order with "Pending Approval" state as Client)
     Go To                                ${SERVER}/inventory/products
     Login                             ${rand_client}                12345678
@@ -709,66 +707,6 @@ TC885 - Check Tracking info (Client)
      click button                      Back
      wait until page contains          Order ${fs_order_cl_2} Details
      #Logout Client
-
-
-Approve orders immediately Step 1 (upload product)
-    ${sku_app}=                      Get Rand ID             ${sku}
-    set suite variable           ${sku_app_immediat}               ${sku_app}
-    log to console                ${sku_app_immediat}
-    ${sku_for_appr_immediatlly}=             include sku for role      ${sku_app_immediat}
-    Go To                               ${SERVER}/inventory/products/bulk
-    Bulk Upload                         Product Bulk Upload      product      for_roles_sku.csv
-    wait until page contains            File uploaded successfully
-
-    wait until page contains            Items Bulk Upload                       40 sec
-    wait until page contains            All items are valid, you can view the data by clicking on "Valid" button below.
-    show buttons in bulk form           Valid 1    Invalid 0    All 1
-    Confirm
-    wait until page contains            Bulk upload was approved successfully               50 sec
-    Go to                         ${SERVER}/inventory/products
-    show data in order                 ${sku_app_immediat}           A product one
-    Logout Client
-
-Approve orders immediately Step 2 (add stock adjastment)
-    Go To                         ${ADMIN}stock_adjustment/stockadjustment/
-    Login                         ${login_admin}        ${pass_admin}
-    wait until page contains      Select stock adjustment to change
-    Add Stock Adjustment          ${sku_app_immediat}                   ${sku_app_immediat} -- Base Item
-    ${status}=                     Get Id Adjustment         Draft
-    log to console                 ${status}
-    wait until page contains      The stock adjustment "${status}" was added successfully
-    Approve stock adjustment        ${status}
-    wait until page contains      ${status} successfully set to Approved
-    Logout Client
-
-Approve orders immediately Step 3 (upload shipping options)
-    Go To                               ${SERVER}/shipping-options/bulk
-    Login                             ${rand_client}                12345678
-    Bulk Upload                         Shipping Options Bulk Upload   shipping     original_approval_immed.xlsx
-    wait until page contains            File uploaded successfully
-    wait until page contains            Bulk Upload                       40 sec
-    show buttons in bulk form           Valid 3    Invalid 0    All 3
-    Confirm
-    wait until page contains            Bulk upload was approved successfully
-    show shipping in table              Express        WMP YAMATO              US
-    show shipping in table              Fast           FedEx IE              US
-    show shipping in table              Free           DPEX                  US
-
-Approve orders immediately Step 4 (upload order and check pending fulfilment)
-    ${id_order_appr_immed}=                 Get Rand ID              ${order_id}
-    log to console               ${id_order_appr_immed}
-    set suite variable           ${order_approval_bulk}               ${id_order_appr_immed}
-    ${include_order}=            include order id for role       ${order_approval_bulk}           ${sku_app_immediat}      Express
-    Go To                               ${SERVER}/orders/bulk
-    Bulk Upload                         Order Bulk Upload     order    for_roles_order.csv
-    wait until page contains            File uploaded successfully
-    wait until page contains            Order Bulk Upload                       40 sec
-    wait until page contains            All orders are valid, you can view the data by clicking on "Valid" button below
-    show buttons in bulk form          Valid 1    Invalid 0    All 1
-    Confirm
-    wait until page contains            Bulk upload was approved successfully               50 sec
-    Go To                              ${SERVER}/orders
-    show shipping in table              ${order_approval_bulk}              FS           Pending Fulfillment
 
 
 

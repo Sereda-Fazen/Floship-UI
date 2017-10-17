@@ -59,6 +59,8 @@ TC527 - Create password as a user - Success
     Delete Email                         ${LATEST}
     Close Mailbox
 
+
+
     Go To                               ${pass_link}
     Reset Password                      Enter new password      12345678        12345               The two password fields didn't match
     Reset Password                      Enter new password      ${reset_pass}       ${reset_pass}             Password reset complete
@@ -161,13 +163,13 @@ TC297 - Register new client - Enter data (valid)
     Full Valid Data                 ${get_company}        ${REG_EMAIL}
     wait until page contains         Welcome
     # Payment method
+TC529 - Continue register new client (Terms of Service) - Invalid test
     wait until page contains element    xpath=//button[@disabled="disabled"]
 
 TC530 - Continue register new client (Terms of Service) - Success
     Wait Element And Click              ${agree}
     wait until page does not contain element      xpath=//button[@disabled="disabled"]
     click button                        Continue
-
 
 TC299 - Continue register (Payment Method) - Empty fields
     Invalid Card Number                 This field may not be blank           A valid integer is required           This field may not be blank
@@ -263,9 +265,11 @@ TC536 - Edit product
     #Edit Product                       ${long_symb}          ${long_symb1}
     Edit Product                     ${edit_sku}   ${edit_desc}
     wait element and click           xpath=//button[contains(.,"Close")]
+    #wait until element is not visible         xpath=//button[contains(.,"Close")]
 
 TC544 - Add new product - Enter data (existed SKU)
     wait element and click            css=button.close > span
+    wait until element is not visible         css=button.close > span
     wait element and click            xpath=//a[contains(.,"Add Product")]
     Valid Data                          ${edit_sku}         ${edit_desc}       Mobile phone         1234567
     #Valid Data                          ${long_symb}        ${long_symb1}       Mobile phone         1234567
@@ -467,9 +471,44 @@ TC548 - Edit group items
 
 
 
-TC331, TC332 - Click on "Add Order" button
-    Go To                               ${SERVER}
-    Empty Fields Order                  Add Order
+TC331 - Click on "Add Order" button
+    Go To                               ${SERVER}/orders
+    wait element and click                     xpath=//a[contains(.,"Add Order")]
+    wait until page contains         New Order
+
+    show status order               Tracking Number              N/A
+    show status order               Source              N/A
+    show status order               Courier              N/A
+    show status order               Status              N/A
+    check fields in order (item)            SKU
+    check fields in order (item)            Unit Type
+    check fields in order (item)            Unit Qty
+    check fields in order (item)            Description
+    check fields in order (item)            Customs Value
+    check fields in order (item)            Qty
+    check fields in order (item)            Total Qty
+    check fields in order (item)            Stock
+
+    check labels order                      Company
+    check labels order                      Full Name *
+    check labels order                      Address Line 1 *
+    check labels order                      Address Line 2
+    check labels order                      City *
+    check labels order                      State/Province
+    check labels order                      Postal Code *
+    check labels order                      Country *
+    check labels order                     Phone Number *
+    check labels order                      Email
+    check labels order                      Save to address book
+    page should contain element              xpath=//a[contains(.,"Address Book")]
+    check labels order                      Order ID *
+    check labels order                      Insurance Value
+    check labels order                      Courier *
+
+
+TC332 - Add new order- Empty fields
+    #Empty Fields Order                  Add Order
+    Save
     wait error this is required       order     shipping_address.addressee                              This field is required
     wait error this is required       order     shipping_address.address_1                              This field is required
     wait error this is required       order     shipping_address.city                              This field is required
@@ -520,6 +559,43 @@ TC832 - Edit Order
    wait until page contains             Order Saved Successfully
    Go To                                ${SERVER}/orders
    show order is created                ${edit_order}          WMP YAMATO        Pending Approval          Out of stock
+
+
+TC1063 - Check all the fields on the order's page
+   Go To                               ${SERVER}/orders
+   wait element and click              xpath=//table//td//a[contains(.,"${edit_order}")]
+
+   wait until page contains            Order ${fs_order} Details
+
+    show status order               Tracking Number              N/A
+    show status order               Source              Fulfillment Portal
+    show status order               Courier             WMP YAMATO
+    show status order               Status              Pending Approval
+
+    Show data in order                 Company            MyCompany
+    Show data in order                Full Name	         SteveVai
+    Show data in order                Address	        Street 1
+    Show data in order               Phone	            1234567890
+
+    wait until page contains element           xpath=//td[contains(.,"Transaction Date")]
+
+    Show data in order                Floship ID	        ${fs_order}
+    Show data in order                Order ID          ${edit_order}
+    Show data in order              Exceptions	            Out of stock
+
+    check item(SKU) after edit            SKU       ${edit_sku}
+    check item(SKU) after edit            Unit Type       	Base Item
+    check item(SKU) after edit            Unit Qty      1
+    check item(SKU) after edit            Description       ${edit_desc}
+    check item(SKU) after edit            Customs Value       $ 99.99
+    check item(SKU) after edit            QTY       1
+    check item(SKU) after edit            Total Qty       1
+
+    Summary block (Order)           Pick and Pack           $ 0.00
+    Summary block (Order)           Estimated           $ 0.00
+    wait until page contains element    xpath=//div[@class="panel-body"][contains(.,"Total") and contains(.,"$ 0.00")]
+
+
 
 
 Check Global Search (Order)
@@ -684,7 +760,7 @@ TC389 - Product bulk upload: empty file - step 1
 
 TC390 - Product bulk upload: missing 1 column (SKU)
     # Miss SKU
-
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload   product       3_missing_1_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['SKU']
@@ -692,6 +768,7 @@ TC390 - Product bulk upload: missing 1 column (SKU)
 
     # Miss Desc
 TC391 - Product bulk upload: missing 2 column (Description)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload    product      3_missing_2_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Description']
@@ -699,13 +776,15 @@ TC391 - Product bulk upload: missing 2 column (Description)
 
     # Miss Brand
 TC392 - Product bulk upload: missing 3 column (Brand/Manufacturer)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload       product      3_missing_3_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Brand/Manufacturer']
     click button                        Remove
 
     # Miss UPC
-
+TC393 - Product bulk upload: missing 3 column (UPC/EAN/MPN)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload        product     3_missing_4_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['UPC/EAN/MPN']
@@ -713,6 +792,7 @@ TC392 - Product bulk upload: missing 3 column (Brand/Manufacturer)
 
     # Miss Code
 TC394 - Product bulk upload: missing 5 column (Harmonized Code)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload       product      3_missing_5_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Harmonized Code']
@@ -720,6 +800,7 @@ TC394 - Product bulk upload: missing 5 column (Harmonized Code)
 
     # Miss Weight
 TC395 - Product bulk upload: missing 6 column (Gross Weight (kg))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload      product      3_missing_6_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Gross Weight (kg)']
@@ -727,6 +808,7 @@ TC395 - Product bulk upload: missing 6 column (Gross Weight (kg))
 
     # Miss length
 TC396 - Product bulk upload: missing 7 column (Gross Length (cm))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload     product     3_missing_7_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Gross Length (cm)']
@@ -734,6 +816,7 @@ TC396 - Product bulk upload: missing 7 column (Gross Length (cm))
 
     # Miss width
 TC397 - Product bulk upload: missing 8 column (Gross Width (cm))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload    product      3_missing_8_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Gross Width (cm)']
@@ -741,6 +824,7 @@ TC397 - Product bulk upload: missing 8 column (Gross Width (cm))
 
     # Miss height
 TC398 - Product bulk upload: missing 9 column (Gross Height (cm))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload        product    3_missing_9_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Gross Height (cm)']
@@ -748,6 +832,7 @@ TC398 - Product bulk upload: missing 9 column (Gross Height (cm))
 
     # Miss USD
 TC399 - Product bulk upload: missing 10 column (Customs Value (USD))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload     product       3_missing_10_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Customs Value (USD)']
@@ -755,6 +840,7 @@ TC399 - Product bulk upload: missing 10 column (Customs Value (USD))
 
     #miss customs desc
 TC400 - Product bulk upload: missing 11 column (Customs Description)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload    product      3_missing_11_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Customs Description']
@@ -762,6 +848,7 @@ TC400 - Product bulk upload: missing 11 column (Customs Description)
 
     # cat
 TC401 - Product bulk upload: missing 12 column (Category (if known))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload    product      3_missing_12_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Category (if known)']
@@ -770,6 +857,7 @@ TC401 - Product bulk upload: missing 12 column (Category (if known))
 
     # Miss Lithium Ion Battery
 TC402 - Product bulk upload: missing 13 column (Lithium Ion Battery (Y/N))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload      product       3_missing_13_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Lithium Ion Battery (Y/N)']
@@ -777,6 +865,7 @@ TC402 - Product bulk upload: missing 13 column (Lithium Ion Battery (Y/N))
 
     # Miss Date
 TC403 - Product bulk upload: missing 14 column (Expiry Date (Y/N))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload     product        3_missing_14_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Expiry Date (Y/N)']
@@ -785,6 +874,7 @@ TC403 - Product bulk upload: missing 14 column (Expiry Date (Y/N))
 
     # Miss Liquid
 TC404 - Product bulk upload: missing 15 column (Liquid (Y/N))
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload     product         3_missing_15_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Liquid (Y/N)']
@@ -792,6 +882,7 @@ TC404 - Product bulk upload: missing 15 column (Liquid (Y/N))
 
     # Miss image url
 TC405 - Product bulk upload: missing 16 column (Item Image URL)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload    product       3_missing_16_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Item Image URL']
@@ -800,6 +891,7 @@ TC405 - Product bulk upload: missing 16 column (Item Image URL)
 
     # Miss Packaging
 TC406 - Product bulk upload: missing 17 column (Packaging SKU)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload       product            3_missing_17_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Packaging SKU']
@@ -807,6 +899,7 @@ TC406 - Product bulk upload: missing 17 column (Packaging SKU)
 
     # Miss Country of Manufacture
 TC407 - Product bulk upload: missing 18 column (Country of Manufacture)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload      product        3_missing_18_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Country of Manufacture']
@@ -814,6 +907,7 @@ TC407 - Product bulk upload: missing 18 column (Country of Manufacture)
 
     # Miss Unit QTY
 TC408 - Product bulk upload: missing 19 column (Unit QTY)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload       product      3_missing_19_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Unit QTY']
@@ -821,6 +915,7 @@ TC408 - Product bulk upload: missing 19 column (Unit QTY)
 
     #  miss Unit type
 TC409 - Product bulk upload: missing 20 column (Unit type)
+    Go To                               ${SERVER}/inventory/products/bulk
     Bulk Upload                         Product Bulk Upload      product      3_missing_20_column.xlsx
     wait until page contains            File uploaded successfully
     wait until page contains            Missing_headers: ['Unit type']

@@ -4,13 +4,14 @@ Library                         Collections
 Library                         DateTime
 Library                         String
 Resource                        locators.robot
-Library                         Selenium2Library     timeout=40     run_on_failure=On Fail
+Library                         SeleniumLibrary     timeout=40     run_on_failure=On Fail
 Library                         ImapLibrary
 Library                         XvfbRobot
 #Library                         AllureReportLibrary        Allure
+
 Library                         plugins.py
 #Library                         remote_inspect.py
-
+Library                         TempMail.py
 
 *** Keywords ***
 
@@ -669,6 +670,23 @@ show status order    [Arguments]     ${text}            ${status}
    wait until page contains element            xpath=//div[@class="panel-body" and contains(.,"${text}") and contains(.,"${status}")]
 
 
+check fields in order (item)           [Arguments]     ${data}
+   wait until page contains element            xpath=//div[@class="panel"]//th[contains(.,"${data}")]
+
+check item(SKU) after edit               [Arguments]        ${colon}          ${data}
+   wait until page contains element        xpath=//div[@class="panel-body panel-table" and contains(.,"${colon}") and contains(.,"${data}")]
+
+Summary block (Order)               [Arguments]          ${text}       ${price}
+  wait until page contains element      xpath=//*[@class="table table-attributes"]//tr[contains(.,"${text}") and contains(.,"${price}")]
+
+check labels order                  [Arguments]        ${label}
+   wait until page contains element            xpath=//label[contains(.,"${label}")]
+
+check labels order (Admin)         [Arguments]        ${label}
+   wait until page contains element            xpath=//td[contains(.,"${label}")]
+
+Check Package Item (Order)            [Arguments]           ${colon}              ${data}
+  wait until page contains element            xpath=//div[@class="panel-body" and contains(.,"${colon}") and contains(.,"${data}")]
 
 Empty Fields Address Book                [Arguments]        ${add}
     Wait settings and Click        Address Book
@@ -1073,7 +1091,11 @@ Show in Table        [Arguments]           ${fsn}  ${cpo}   ${track}        ${co
 Show Product           [Arguments]              ${sku}         ${desc}
     wait until page contains element          xpath=//tr[@class="row1"][contains(.,"${sku}") and contains(.,"${desc}")]
 
+Sales Order Cost in Table        [Arguments]           ${fsn}  ${cpo}   ${track}        ${cour}    ${cost}              ${margin}
+    wait until page contains element          xpath=//tr[contains(@class,"row")][contains(.,"${fsn}") and contains(.,"${cpo}") and contains(.,"${track}") and contains(.,"${cour}") and contains(.,"${cost}") and contains(.,"${margin}")]
 
+Vendor bill item in Table        [Arguments]           ${fsn}  ${cpo}   ${track}        ${cour}    ${cost}              ${margin}      ${labor_cost}         ${ship_cost}
+    wait until page contains element          xpath=//tr[contains(@class,"row")][contains(.,"${fsn}") and contains(.,"${cpo}") and contains(.,"${track}") and contains(.,"${cour}") and contains(.,"${cost}") and contains(.,"${margin}") and contains(.,"${labor_cost}") and contains(.,"${ship_cost}")]
 
 
 Show ASN             [Arguments]           ${refer}
@@ -1475,7 +1497,7 @@ product does not find in table                [Arguments]            ${fs}      
     wait until page does not contain element           xpath=//tr[@class="row1" and contains(.,"${fs}") and contains(.,"${id}") and contains(.,"${status}")]
 
 Open Check Order                [Arguments]                ${fs}
-    wait element and click                    xpath=//tr[@class="row1"]//a[contains(.,"${fs}")]
+    wait element and click                    xpath=//tr[contains(@class,"row")]//a[contains(.,"${fs}")]
 
 Change Order
     header link admin                         Sales order lines               Add another Sales order line
@@ -1679,7 +1701,8 @@ Check Item CSV Upload            [Arguments]         ${file}   ${client}      ${
     Upload Item File              	${client}   product      ${file}
     sleep                          3 sec
     #wait element and click         name=_save
-    execute javascript            jQuery("input[name=_save]").click();
+    wait until page contains element    name=_save
+    click button                    name=_save
     wait until page contains        The item csv upload
     ${item_csv}=                   get element attribute                   xpath=//tr[@class="row1"]//a@text
     log to console                 ${item_csv}
@@ -1699,7 +1722,8 @@ Check ASN CSV Upload            [Arguments]         ${file}   ${client}      ${m
     Upload Item File              	${client}    asn      ${file}
     sleep                          3 sec
     #wait element and click         name=_save
-    execute javascript            jQuery("input[name=_save]").click();
+    wait until page contains element    name=_save
+    click button                    name=_save
     wait until page contains       The asn items upload
     ${item_csv}=                   get element attribute                   xpath=//tr[@class="row1"]//a@text
     log to console                 ${item_csv}
@@ -1719,7 +1743,8 @@ Check Order CSV Upload            [Arguments]         ${file}   ${client}      $
     Upload Item File              	${client}    order      ${file}
     sleep                          2 sec
     #wait element and click         name=_save
-    execute javascript             jQuery("input[name=_save]").click();
+    wait until page contains element    name=_save
+    click button                    name=_save
     wait until page contains       The order csv upload
     ${item_csv}=                   get element attribute                   xpath=//tr[@class="row1"]//a@text
     log to console                 ${item_csv}
@@ -1730,6 +1755,29 @@ Check Order CSV Upload            [Arguments]         ${file}   ${client}      $
     Sleep                          3 sec
     Open Check Order               ${save_item_csv}
     wait until page contains       ${message}
+
+
+Check SO CSV Upload            [Arguments]        ${file}   ${client}      ${message}
+    Go To                                 ${ADMIN}preferences/clientshippingoptionupload/
+    wait until page contains           Select client shipping option upload to change
+    Add report                     Add client shipping option upload            Add client shipping option upload
+    Upload Item File              	${client}    shipping      ${file}
+    sleep                          3 sec
+    #wait element and click         name=_save
+    wait until page contains element    name=_save
+    click button                    name=_save
+    wait until page contains       The client shipping option upload
+    ${item_csv}=                   get element attribute                   xpath=//tr[@class="row1"]//a@text
+    log to console                 ${item_csv}
+    Open Check Order               ${item_csv}
+    set suite variable             ${save_item_csv}        ${item_csv}
+    wait element and click         xpath=//input[contains(@value,"Validate Client Shipping Option Upload")]
+    wait until page contains       The client shipping option upload "${save_item_csv}" was changed successfully.
+    Sleep                          3 sec
+    Open Check Order               ${save_item_csv}
+    wait until page contains       ${message}
+
+
 
 #### SO
 
@@ -1745,3 +1793,10 @@ Select Fields (Client, Courier) SO              [Arguments]      ${aria}     ${c
   wait until element is visible           xpath=(//input[@class="select2-search__field"])[2]
   input text                              xpath=(//input[@class="select2-search__field"])[2]                 ${client}
   wait element and click                  xpath=//li[contains(@class,"select2-results__option") and contains(.,"${client}")]
+
+
+
+### Accounting b2c
+
+click exist b2c                  [Arguments]          ${cost}           ${add_cost}
+   wait element and click          xpath=//tr[@class="row1"]//td[@class="field-cost" and contains(.,"${cost}")]/..//td[@class="field-additional_cost" and contains(.,"${add_cost}")]/..//a

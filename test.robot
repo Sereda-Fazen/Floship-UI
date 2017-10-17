@@ -6,10 +6,9 @@ Suite Teardown                          Close All Browsers
 *** Test Cases ***
 
 
-TC700 - Create Shipping option (empty fields)
-     Go To                     ${ADMIN}
-     Login                     test+rmozilym@floship.com                 12345678
-     Wait Until Page Contains         Dashboard
+## B2C Piece pick rates
+
+
 
 
 

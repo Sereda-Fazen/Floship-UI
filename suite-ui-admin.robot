@@ -486,13 +486,237 @@ TC684 - ASN items uploads: successful upload
     show in table                  ${save_item_csv}        ${rand_client_name}         Download           Saved
 
 
-TC757 - Add Sales Order (empty fields)
+
+######## SO
+
+TC700 - Create Shipping option (empty fields)
+     Go To                     ${ADMIN}
+     Mouse over and Click          Customers                  /admin-backend/preferences/clientshippingoption/
+     wait until page contains             Select client shipping option to change
+     click element                 xpath=//a[contains(.,"Add client shipping option")]
+     wait until page contains          Add client shipping option
+     click button                  name=_save
+     wait error this is required (Admin)                Client              This field is required
+
+TC697 - Create Shipping option
+    ${ship_op}=                        Get Rand ID            ${shipping_name}
+    log to console                     ${ship_op}
+    set suite variable                  ${ship_op_edit}                         ${ship_op}
+    Go To                           ${ADMIN}preferences/clientshippingoption/add/
+    wait until page contains          Add client shipping option
+    Select Fields Country SO            United States of America
+    input text                       name=shipping_option                  ${ship_op_edit}
+    Select Fields (Client, Courier) SO          select2-id_client-container           ${rand_client_name}
+    Select Fields (Client, Courier) SO          select2-id_courier_service-container                       WMP YAMATO
+    click element                  name=_save
+    wait until page contains             The client shipping option "${rand_client_name} - ${ship_op_edit}" was added successfully
+
+TC702 - Search
+    Go To                           ${ADMIN}preferences/clientshippingoption/
+    Check Item in Search       ${ship_op_edit}
+    show in table             ${ship_op_edit}       ${rand_client_name}           WMP YAMATO      United States of America
+    Open Check Order          ${ship_op_edit}
+
+TC701 - Edit Shipping option
+    wait until page contains               Change client shipping option
+    Select Fields (Client, Courier) SO          select2-id_client-container           ${rand_client_name}
+    Select Fields Country SO            Australia
+    click element                  name=_save
+    wait until page contains             The client shipping option "${rand_client_name} - ${ship_op_edit}" was changed successfully
+
+TC703 - Filters
+    Go To                           ${ADMIN}preferences/clientshippingoption/
+    Check Filter                1      WMP YAMATO
+    wait until page contains element      xpath=//tr[contains(@class,"row") and contains(.,"${ship_op_edit}")]
+    go back
+    Check Filter                2      ${rand_client_name}
+    show in table             ${ship_op_edit}      ${rand_client_name}           WMP YAMATO      United States of America
+
+TC704 - Sorting
+    Go To                           ${ADMIN}preferences/clientshippingoption/
+    Sorting                          Shipping option
+    wait until page contains element      xpath=//tr[@class="row1"]
+    Sorting                           Client
+    wait until page contains element      xpath=//tr[@class="row1"]
+
+TC705 - Bulk actions
+    Go To                           ${ADMIN}preferences/clientshippingoption/
+    Delete user                     Delete selected client shipping options
+    wait until page contains        Successfully deleted 1 client shipping option
+    Go To                           ${ADMIN}preferences/clientshippingoption/
+    Check Item in Search            ${ship_op_edit}
+    wait until page contains        0 client shipping options
+
+
+
+### SO Upload Item
+
+TC706 - Create client shipping option uploads (empty fields)
+     Go To                     ${ADMIN}
+     Mouse over and Click          Customers                  /admin-backend/preferences/clientshippingoptionupload/
+     wait until page contains             Select client shipping option upload to change
+     click element                 xpath=//a[contains(.,"Add client shipping option upload")]
+     wait until page contains          Add client shipping option upload
+     click button                  name=_save
+     wait error this is required (Admin)                Client              This field is required
+
+TC710 - Client shipping option uploads: empty file
+    Check SO CSV Upload       2_empty.xlsx       ${rand_client_name}       The file is empty
+TC711 - Client shipping option uploads: missing 1 column (Courier Service)
+    Check SO CSV Upload       3_missing_1_column.xlsx       ${rand_client_name}       Missing_headers: ['Courier Service']
+TC712 - Client shipping option uploads: missing 1 column (Shipping Option)
+    Check SO CSV Upload       3.1_missing_2_column.xlsx       ${rand_client_name}       Missing_headers: ['Shipping Option']
+TC713 - Client shipping option uploads: missing 3 column (Countries)
+    Check SO CSV Upload       3.2_missing_3_column.xlsx       ${rand_client_name}       Missing_headers: ['Countries']
+TC714 - Client shipping option uploads: file with invalid data
+   Check SO CSV Upload   4_invalid_data.xlsx      ${rand_client_name}     Client Shipping Option Upload
+    wait until page contains       Client Shipping Option Upload
+    show buttons in bulk form           Valid 0    Invalid 1    All 1
+    click element                  css=button.close > span
+    wait until page does not contain element         name=_fsmtransition-status-save_
+
+TC1065 - Client shipping option uploads: missing row
+   Check SO CSV Upload   5_missing_fields.xlsx      ${rand_client_name}     Client Shipping Option Upload
+    wait until page contains       Client Shipping Option Upload
+    show buttons in bulk form           Valid 2    Invalid 1    All 3
+    click element                  css=button.close > span
+    wait until page does not contain element         name=_fsmtransition-status-save_
+
+TC707 - Client shipping option uploads: successful upload
+    Check SO CSV Upload     1_success.xlsx       ${rand_client_name}     Client Shipping Option Upload
+    wait until page contains       Client Shipping Option Upload
+    show buttons in bulk form           Valid 3    Invalid 0    All 3
+    click element                  css=button.close > span
+    wait element and click         name=_fsmtransition-status-save_
+    wait until page contains       The client shipping option upload "${save_item_csv}" was changed successfully.
+    set suite variable             ${check_item}           ${save_item_csv}
+    show in table                  ${check_item}        ${rand_client_name}         Download           Sav
+
+TC716 - Sorting
+    Go To                  ${ADMIN}preferences/clientshippingoptionupload/
+    wait until page contains          Select client shipping option upload to change
+    Sorting                   Status
+    wait until page contains element             xpath=//tr[contains(@class,"row") and contains(.,"Invalid")]
+
+TC717 - Bulk actions
+    Go To                  ${ADMIN}preferences/clientshippingoptionupload/
+    Delete user                     Delete selected client shipping option uploads
+    wait until page contains        Successfully deleted 1 client shipping option upload
+
+
+#### 3PL
+
+TC718 - Create 3PL (empty fields)
+     Go To                     ${ADMIN}
+     Mouse over and Click           Miscellaneous                  /admin-backend/floship/threepl/
+     wait until page contains             Select 3PL to change
+     click element                 xpath=//a[contains(.,"Add 3PL")]
+     wait until page contains          Add 3PL
+     click button                  name=_save
+     wait error this is required (Admin)               Name              This field is required
+
+TC720 - Edit 3PL
+    ${test_3pl}=              Get Rand ID                  ${3pl_rand}
+    Go To                     ${ADMIN}floship/threepl/
+    wait element and click         xpath=//a[contains(.,"3PL_")]
+    wait until page contains    Change 3PL
+    input text                        id=id_name               ${test_3pl}
+    click element                 name=_save
+    wait until page contains element          xpath=//a[contains(.,"${test_3pl}")]
+
+
+### Courier
+
+TC722 - Create courier (empty fields)
+     Go To                     ${ADMIN}
+     Mouse over and Click           Miscellaneous                  /admin-backend/couriers/courier/
+     wait until page contains            Select courier to change
+     click element                 xpath=//a[contains(.,"Add courier")]
+     wait until page contains          Add courier
+     click button                  name=_save
+     wait error this is required (Admin)              Display name              This field is required
+     wait error this is required (Admin)              Courier type              This field is required
+     wait error this is required (Admin)              Tracking url              This field is required
+
+TC724 - Search
+    ${test_courier}=              Get Rand ID         ${couirier_rand}
+    set suite variable         ${edit_courier}        ${test_courier}
+    Go To                     ${ADMIN}couriers/courier/
+    Check Item in Search        Courier
+    Open Check Order            Courier
+
+TC720 - Edit 3PL
+    wait until page contains    Change courier
+    input text                        id=id_display_name               Courier${edit_courier}
+    click element                 name=_save
+    wait until page contains       The courier "Courier${edit_courier}" was changed successfully.
+    wait until page contains element          xpath=//a[contains(.,"Courier${edit_courier}")]
+
+TC726 - Filters
+    Go to                               ${ADMIN}couriers/courier/
+    Check Filter                2      Express Courier
+    wait until page contains element    xpath=//tr[contains(@class,"row") and contains(.,"Express Courier")]
+    Check Filter                1       No
+    wait until page contains element    xpath=//img[@alt="False"]
+
+
+
+
+#### Sales Order
+
+TC1064 - Click on "Add Order" button
     [Tags]                             AdminSearch
     ${id_order_admin}                           Get Rand ID              ${order_id}
     log to console                         ${id_order_admin}
     set suite variable                      ${order_admin_id}             ${id_order_admin}
     Go to                               ${ADMIN}orders/salesorder/
     wait element and click              ${add}
+
+    ## Check all checks to the order's page
+
+    show status order               Tracking Number              N/A
+    show status order               Source              N/A
+    show status order               Courier              N/A
+    show status order               Status              N/A
+    check fields in order (item)            SKU
+    check fields in order (item)            Unit Type
+    check fields in order (item)            Unit Qty
+    check fields in order (item)            Description
+    check fields in order (item)            Customs Value
+    check fields in order (item)            Qty
+    check fields in order (item)            Total Qty
+    check fields in order (item)            Stock
+
+    check labels order                      Company
+    check labels order                      Full Name *
+    check labels order                      Address Line 1 *
+    check labels order                      Address Line 2
+    check labels order                      City *
+    check labels order                      State/Province
+    check labels order                      Postal Code *
+    check labels order                      Country *
+    check labels order                     Phone Number *
+    check labels order                      Email
+    check labels order                      Save to address book
+    page should contain element              xpath=//a[contains(.,"Address Book")]
+    check labels order                      Order ID *
+    check labels order                      Insurance Value
+    check labels order                      Courier *
+    check labels order                      Client *
+
+    check labels order                      Shipping Exceptions
+    check labels order                      ThreePL Exceptions
+    check labels order                      Reason Of Export
+    check labels order                      Status Notes
+
+    check labels order                      Pick pack cost
+    check labels order                      Actual cost
+    check labels order                      Estimated cost
+    check labels order                      Fuel surcharge
+    check labels order                      Actual weight
+
+
+TC757 - Add Sales Order (empty fields)
     Save
     wait error this is required       order     shipping_address.addressee                              This field is required
     wait error this is required       order     shipping_address.address_1                              This field is required
@@ -511,7 +735,7 @@ TC734 - Add Sales Order with Base Item (out of stock)
     wait until page contains             Order Saved Successfully
     Sleep                               30 sec
     Go To                                ${ADMIN}orders/salesorder/
-    show in table                       ${order_admin_id}          WMP YAMATO        Pending Approval        ${rand_client_name}
+    show in table                       ${order_admin_id}          WMP YAMATO        Sent to 3PL        ${rand_client_name}
     ${get_fs_order}=                      Get Smt
     set suite variable                 ${get_fs}           ${get_fs_order}
 
@@ -527,6 +751,7 @@ TC758 - Edit Sales Order
    Go To                                ${ADMIN}orders/salesorder/
    Check Item in Search                ${order_admin_id}
    show in table                    ${order_admin_id}         WMP YAMATO       Sent to 3PL         Other
+
 
 TC765 - Search
    Go To                                 ${ADMIN}orders/salesorder/
@@ -555,7 +780,7 @@ TC767 - Filters
 TC768 - TC770 - Bulk action
     Go to                              ${ADMIN}orders/salesorder/
     Check Item in Search               ${order_admin_id}
-    show in table                      ${order_admin_id}          ${get_fs}         ${rand_client_name}    Pending Approval
+    show in table                      ${order_admin_id}          ${get_fs}         ${rand_client_name}    Pending Fulfillment
     Actions Sales Order                Approve pending orders                Orders are successfully approved
     show in table                      ${order_admin_id}          ${get_fs}         ${rand_client_name}    Pending Fulfillment
     Actions Sales Order                Mark as "Sent to 3pl"                 Warehouse successfully notified
@@ -653,12 +878,13 @@ TC796 - Order bulk upload: missed fields
     wait until page does not contain element         xpath=//input[contains(@value,"Save Items Order Csv Upload")]
 
 TC771 - Order bulk upload: successful upload
-    Check Order CSV Upload     1_success.xlsx       ${rand_client_name}     Order Csv Upload
+    Check Order CSV Upload         1_success.xlsx       ${rand_client_name}     Order Csv Upload
     wait until page contains       Order Csv Upload
     show buttons in bulk form           Valid 2    Invalid 0    All 2
     wait element and click                  css=button.close > span
     Sleep                          2 sec
-    execute javascript             jQuery("input[name=_save]").click();
+    wait until page contains element    name=_save
+    click button                    name=_save
     wait until page contains       The order csv upload "${save_item_csv}" was changed successfully
     show in table                  ${save_item_csv}       ${rand_client_name}         Download           Valid
     Logout Client
@@ -735,6 +961,7 @@ TC474 - Approve order with valid item
    Go To                              ${SERVER}/orders
    Find Order Change Status           ${fsn}       Pending Fulfillment
 
+
 TC475 - Check order in the list of orders as admin
    [Tags]                             CheckOrder
    Go To                              ${ADMIN}orders/salesorder/
@@ -797,6 +1024,68 @@ TC478 - Check fulfillment order
     Change Fulfilled Order    gross_length              Gross length         10.00
     Change Fulfilled Order    gross_width               Gross width          5.00
     Change Fulfilled Order    gross_height              Gross height         1.00
+
+
+TC741 - Open order for check as admin
+   Go To                                ${ADMIN}orders/salesorder/
+   Check Item in Search                ${id_order}
+   Open Check Order                 ${id_order}
+   wait until page contains           Order ${fsn} Details
+
+   show status order               Tracking Number              ${fsn}
+    show status order               Source              Fulfillment Portal
+    show status order               Courier             WMP YAMATO
+    show status order               Status              Fulfilled
+
+    check labels order (Admin)              Company
+
+    Show data in order                Full Name	         SteveVai
+    Show data in order                Address	        Street 1
+
+    Show data in order               Phone	            1234567890
+    check labels order (Admin)               Email
+
+    Show data in order             Client              ${rand_client_name}
+    Show data in order                Floship ID	         ${fsn}
+    Show data in order               Order ID	             ${id_order}
+
+    Show data in order             Crowdfunding Number	          -
+    Show data in order             State	                   Tracking Integrations Notified
+    Show data in order             Tax Paid By	               DDU
+
+    Show data in order             Reason Of Export	            Purchase
+    Show data in order             Insurance Value	            $ 0.00
+
+    Show data in order             Sent To 3pl	                YES
+    Show data in order             Is Workshop	                 NO
+    Show data in order             Order Type	                b2c
+
+    wait until page contains element      xpath=(//td[contains(.,"Transaction Date")])[1]
+    check labels order (Admin)              Update Date
+    check labels order (Admin)              Original Transaction Date
+    check labels order (Admin)              Approval Eligibility Date
+
+    Summary block (Order)           Pick and Pack           $ 10.00
+    Summary block (Order)           Estimated           $ 109.55
+    wait until page contains element    xpath=//div[@class="panel-body"][contains(.,"Total") and contains(.,"$ 10.00")]
+
+    check item(SKU) after edit            SKU            ${sku_}
+    check item(SKU) after edit            Unit Type       	Base Item
+    check item(SKU) after edit            Unit Qty      1
+    check item(SKU) after edit            Description       ${desc_}
+    check item(SKU) after edit            Customs Value       $ 99.99
+    check item(SKU) after edit            QTY       1
+    check item(SKU) after edit            Total Qty       1
+
+    Check Package Item (Order)           Sku                  SHIP-READY
+    Check Package Item (Order)           Dimensions                  System
+    Check Package Item (Order)           Length                20
+    Check Package Item (Order)           Width                20
+    Check Package Item (Order)           Height                 100
+    Check Package Item (Order)           Weight                5.1
+    Check Package Item (Order)           Tracking Number                ${fsn}
+    Check Package Item (Order)           Shipping Label                Download
+    Check Package Item (Order)           Commercial Invoice               Download
 
 ### Inner Carton
 
@@ -1261,12 +1550,6 @@ TC602 - Update Sales Order Cost Upload
    Generate report                 ${update_file}       Change sales order cost upload       Update Sales Order Cost Upload
    wait until page contains        The sales order cost upload "${update_file}" was changed successfully.
 
-#TC605 - Check values for updated sales order
-#   Go To                       ${ADMIN}orders/salesorder/
-#   Check Item in Search                 FS0073812
-#   Check Amount Cost Order           FS0073812      Actual cost       11.00      Actual weight            12.000
-#   click button                Save
-#   wait until page contains    The sales order
 
 TC604 - Update Sales Order Cost Upload
    Go To                        ${ADMIN}

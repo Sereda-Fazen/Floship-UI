@@ -169,6 +169,8 @@ ${create_user}     For_Test
 ${client}          Client for autotests_
 ${client_role}     Client for role_
 ${fo}              FS
+${3pl_rand}             3PL_
+${couirier_rand}        _
 
 # Long symbols
 

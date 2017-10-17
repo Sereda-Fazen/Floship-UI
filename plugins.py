@@ -70,8 +70,34 @@ def include_data_crowd(order, sku_item):
               "(555) 555-5555",
               "JANE@EXAMPLE.COM", "1.23", "Free Shipping", "1", sku_item, "SHIP-READY"]])
 
-# def main():
-#     id = include_order_id_for_role("ORDER_23434" ,"SKU_2000992")
-#
-# if __name__ == '__main__':
-#     main()
+
+def sales_order_cost(fs_number):
+    uniqCrowd = "../Floship-UI/cost_sales_order/actual_cost.csv"
+
+    with open(uniqCrowd, "w") as file:
+        writer = csv.writer(file)
+        writer.writerows(
+            [["SO Number", "Tracking number", "Actual cost"],
+
+             [fs_number, "", "11"]])
+
+
+def vendor_cost(fs_number):
+    uniqCrowd = "../Floship-UI/cost_sales_order/vendor_bill_template.csv"
+
+    with open(uniqCrowd, "w") as file:
+        writer = csv.writer(file)
+        writer.writerows(
+            [["Bill reference", "Order number", "Tracking number", "Length", "Width", "Height", "Weight",
+              "Vendor labour cost", "Vendor shipping cost"],
+
+             ["12345", fs_number, "", "10", "10", "10", "7", "3.1", "4.2"]])
+
+
+
+
+def main():
+    id = vendor_cost("FS23456")
+
+if __name__ == '__main__':
+    main()
