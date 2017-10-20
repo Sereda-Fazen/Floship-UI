@@ -19,7 +19,7 @@ ${pass_admin}                   qw1as2zx3po
 
 
 ${MAIL_HOST}                    imap.gmail.com
-${MAIL_USER}                    auto.testfloship@gmail.com
+${MAIL_USER}                    auto.testfloship1@gmail.com
 
 ${client mail}                  test@floship.com
 ${cli_role}                      client@floship.com
