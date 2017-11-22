@@ -1,4 +1,5 @@
 robotframework
-robotframework-seleniumlibrary
+robotframework-selenium2library
 robotframework-xvfb
 robotframework-imaplibrary
+pip3 install pyyaml

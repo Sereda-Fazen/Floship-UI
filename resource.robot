@@ -4,7 +4,7 @@ Library                         Collections
 Library                         DateTime
 Library                         String
 Resource                        locators.robot
-Library                         SeleniumLibrary     timeout=30     run_on_failure=On Fail
+Library                         Selenium2Library     timeout=30     run_on_failure=On Fail
 Library                         ImapLibrary
 Library                         XvfbRobot
 Library                         BuiltIn
