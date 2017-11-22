@@ -125,7 +125,9 @@ TC757 - Add Sales Order (empty fields)
 TC734 - Add Sales Order with Base Item (out of stock)
     [Tags]                           OrderAdmin
     reload page
-    Create Sales Order             ${phone}       ${order_admin_id}     ${rand_client_name}    	${search_sku}    ${search_sku}   Base Item
+    Create Sales Order     ${post_code}        ${phone}   ${country}         ${order_admin_id}  WMP YAMATO    ${rand_client_name}    	${search_sku}    ${search_sku}   Base Item
+    input text           ${city_field_order}                New York
+    click button                      Save
     wait until page contains             Order Saved Successfully
     Sleep                               30 sec
     Go To                                ${ADMIN}orders/salesorder/
@@ -150,6 +152,8 @@ TC759 - Edit Sales Order (Add Costs)
    Check Item in Search                ${order_admin_id}
    show in table                     ${get_fs}         ${order_admin_id}         WMP YAMATO       Pending Approval
 
+
+
 TC760 - Edit Sales Order (Add Packages)
    Go To                                 ${ADMIN}orders/salesorder/
    Search and Click Item                        ${order_admin_id}
@@ -159,8 +163,20 @@ TC760 - Edit Sales Order (Add Packages)
    input text                         xpath=//input[@ng-model="package.length"]           20
    input text                         xpath=//input[@ng-model="package.width"]            15
    input text                         xpath=//input[@ng-model="package.height"]           10
-   input text                         xpath=//input[@ng-model="package.weight"]            5
+   input text                         xpath=//input[@ng-model="package.weight"]           3.12356789
    wait element and click             xpath=//button[contains(.,"Save")]
+   wait until page contains           Order Saved Successfully
+    Scroll Page To Location           100              2000
+    Check Package Item (Order)           Sku                  SHIP-READY
+    Check Package Item (Order)           Dimensions                  System
+    Check Package Item (Order)           Length                20
+    Check Package Item (Order)           Width                15
+    Check Package Item (Order)           Height                 10
+    Check Package Item (Order)           Weight                3.124
+    Check Package Item (Order)           Tracking Number                ${get_fs}
+    Check Package Item (Order)           Shipping Label                Download
+    Check Package Item (Order)           Commercial Invoice               Download
+
    Sleep                                10 sec
    Go To                                ${ADMIN}orders/salesorder/
    wait until page contains             Select sales order to change
@@ -175,7 +191,7 @@ TC735 - Add stock adjustment for remove "out of stock" exception - step 1
    [Tags]                                Adjustment
    Go To                         ${ADMIN}stock_adjustment/stockadjustment/
    wait until page contains      Select stock adjustment to change
-   Add Stock Adjustment          ${search_sku}            ${search_sku} -- Base Item
+   Add Stock Adjustment          ${search_sku}            ${search_sku} -- Base Item        10
    ${status}=                     Get Id Adjustment         Draft
    log to console                 ${status}
    wait until page contains      The stock adjustment "${status}" was added successfully
@@ -210,10 +226,53 @@ TC742 - Mark order as fulfilled
      [Tags]                           Mark
      Go To                     ${ADMIN}orders/warehousependingfulfillmentorder/
      Check Item in Search                       ${get_fs}
-     Sleep                      30 sec
+     Sleep                      40 sec
      reload page
      Check Data fulfilled                    ${get_fs}         	${order_admin_id}          Pending Fulfillment        WMP YAMATO
      Mark                           Mark as fulfilled
      wait until page contains        Orders have been updated
      Check does not Data fulfilled           ${get_fs}          	${order_admin_id}          Pending Fulfillment        WMP YAMATO
+
+#TC1135 - Check DHL Courier settings
+#    Go To                                ${ADMIN}couriers/courier/
+#    wait until page contains           Select courier to change
+#    Check Item in Search                  DHL
+#    Open Check Order                   DHL
+#    wait until page contains           Change courier
+#    Select Fields                   Service         DHL              DHL
+#    click button                   name=_save
+#    wait until page contains         The courier "DHL" was changed successfully
 #
+#TC1136 - Add order with Commercial Invoice
+#    ${id_order_admin}                           Get Rand ID              ${order_id}
+#    log to console                         ${id_order_admin}
+#    set suite variable         ${order_admin_id}          ${id_order_admin}
+#    Go To                          ${ADMIN}orders/salesorder/
+#    wait element and click              ${add}
+#    Create Sales Order 2      92100   ${phone}    France         ${order_admin_id}  DHL       xpath=(//*[@class="ui-select-choices-content selectize-dropdown-content" and contains(.,"DHL")]//span)[2]         ${rand_client_name}    	${search_sku}    ${search_sku}   Base Item
+#    input text           ${city_field_order}                Paris
+#    click button                      Save
+#    wait until page contains             Order Saved Successfully
+#    Sleep                               30 sec
+#    reload page
+#    Show data in order             Sent To 3pl	                YES
+#     wait until page contains element       xpath=(//tbody//a[contains(.,"Download")])[1]
+#    wait until page contains element       xpath=(//tbody//a[contains(.,"Download")])[2]
+#
+#
+#TC1136 - Add order without Commercial Invoice
+#    ${id_order_admin}                           Get Rand ID              ${order_id}
+#    log to console                         ${id_order_admin}
+#    set suite variable         ${order_admin_id}          ${id_order_admin}
+#    Go To                          ${ADMIN}orders/salesorder/
+#
+#    wait element and click              ${add}
+#    Create Sales Order 2     3000   ${phone}   Australia         ${order_admin_id}  DHL    ${rand_client_name}    	${search_sku}   ${search_sku}   Base Item
+#    input text           ${city_field_order}                Melburn
+#    click button                      Save
+#    wait until page contains             Order Saved Successfully
+#    Sleep                               40 sec
+#    reload page
+#    Show data in order             Sent To 3pl	                YES
+#    wait until page contains element       xpath=(//tbody//a[contains(.,"Download")])[1]
+#    wait until page does not contain element       xpath=(//tbody//a[contains(.,"Download")])[2]

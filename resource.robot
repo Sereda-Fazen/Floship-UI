@@ -4,13 +4,15 @@ Library                         Collections
 Library                         DateTime
 Library                         String
 Resource                        locators.robot
-Library                         Selenium2Library     timeout=40     run_on_failure=On Fail
+Library                         Selenium2Library     timeout=30     run_on_failure=On Fail
 Library                         ImapLibrary
 Library                         XvfbRobot
+Library                         BuiltIn
 #Library                         AllureReportLibrary        Allure
-
+Variables                       city.yaml
 Library                         plugins.py
 #Library                         remote_inspect.py
+Library                         TempMail.py
 
 *** Keywords ***
 
@@ -21,19 +23,19 @@ On Fail
     Set Screenshot Directory             ${OUTPUTDIR}/Screenshots/
 
 Setup Tests
-    Start Virtual Display               ${WIDTH}    ${HEIGHT}
+    Start Virtual Display                ${WIDTH}    ${HEIGHT}
     Open Browser                         ${SERVER}         ${BROWSER}
     set window size                      ${WIDTH}    ${HEIGHT}
     Register Keyword To Run On Failure   On Fail
     Set Screenshot Directory             ${OUTPUTDIR}/Screenshots/
 
-Open Browser with Dev Tools                       [Arguments]         ${dev}
-    ${dev}=                               dev tools
-    log to console                        ${dev}
-    [return]                              ${dev}
-    ${options}=                           Evaluate            sys.modules['selenium.webdriver'].ChromeOptions()   sys
-    Create WebDriver                      Chrome              chrome_options=${options}
-    Go To                                 ${dev}
+#Open Browser with Dev Tools                       [Arguments]         ${dev}
+#    ${dev}=                               dev tools
+#    log to console                        ${dev}
+#    [return]                              ${dev}
+#    ${options}=                           Evaluate            sys.modules['selenium.webdriver'].ChromeOptions()   sys
+#    Create WebDriver                      Chrome              chrome_options=${options}
+#    Go To                                 ${dev}
 
 Login           [Arguments]              ${email}                  ${pass}
    Wait Until Page Contains Element       xpath=//h3[contains(.,"Login")]
@@ -88,6 +90,9 @@ Payment                    [Arguments]                ${price}
 wait error this is required          [Arguments]      ${page}      ${field_error}               ${error}
     wait until page contains element   xpath=//*[@ng-model="$ctrl.${page}.${field_error}"]/..//li[contains(.,"${error}")]
 
+wait error this is required (cross)  [Arguments]      ${page}      ${field_error}               ${error}
+    wait until page contains element   xpath=//*[@ng-model="${page}.${field_error}"]/..//li[contains(.,"${error}")]
+
 wait error this is required (Admin)   [Arguments]      ${page}      ${error}
      wait until page contains element   xpath=//label[contains(.,"${page}")]/../..//li[contains(.,"${error}")]
 
@@ -116,11 +121,27 @@ Select Post                [Arguments]         ${post}
     sleep                           2 sec
     wait element and click       xpath=//div[@ng-show='$select.open']//div[@class='ng-binding ng-scope']
 
+Select Post (SO)                [Arguments]         ${country}
+    click element                   xpath=(//input[@type="search"])[2]
+    input text                      xpath=(//input[@type="search"])[2]            ${country}
+    sleep                           2 sec
+    wait element and click       xpath=//div[@ng-show='$select.open']//div[@class='ng-binding ng-scope']
+
+
 Select Post Order               [Arguments]         ${post}
     click element                   xpath=//input[@type="search"][@aria-label="Choose a Courier Service"]
     input text                      //input[@type="search"][@aria-label="Choose a Courier Service"]            ${post}
     sleep                           1 sec
     wait element and click       xpath=//div[@ng-show='$select.open']//div[@class='ng-binding ng-scope']
+
+
+Select Post Order (DHL or Fedex)               [Arguments]         ${post}     ${locator}
+    click element                   xpath=//input[@type="search"][@aria-label="Choose a Courier Service"]
+    input text                      //input[@type="search"][@aria-label="Choose a Courier Service"]            ${post}
+    sleep                           1 sec
+    wait element and click          ${locator}
+
+
 
 Select Client Order              [Arguments]         ${client}
     click element                   xpath=//input[@type="search"][@placeholder="Select or search a client in the list..."]
@@ -190,6 +211,12 @@ Wait Element And Click                [Arguments]                  ${locator}
     Sleep                           1 sec
     wait until page contains element          ${locator}
     click element                             ${locator}
+
+Wait Element is Visible And Click                [Arguments]                  ${locator}
+    Sleep                           1 sec
+    wait until element is visible          ${locator}
+    click element                             ${locator}
+
 
 Invalid Card Number                   [Arguments]              ${card valid}            ${exp date valid}   ${cvv valid}
     wait until page contains         Card Number
@@ -290,6 +317,27 @@ Get Email Client                      [Arguments]          ${email}
     ${email}=                            Catenate	SEPARATOR=+    ${user}          ${fake_mail}
     [return]                             ${email}
 
+Check Select All checkbox                [Arguments]     ${select_all}
+    wait element and click              xpath=//table[@id="result_list"]//th[@class="action-checkbox-column"]//label
+    wait until page contains element       xpath=//span[@style="display: inline;" and contains(.,"${select_all}") or contains(.,"selected")]
+    wait element and click              xpath=//table[@id="result_list"]//th[@class="action-checkbox-column"]//label
+    wait until page does not contain element       xpath=//span[@style="display: inline;" and contains(.,"${select_all}")]
+
+Check a few select
+   wait element and click               xpath=(//tbody/tr[contains(@class,"row")]//td[@class="action-checkbox"]//label)[1]
+   wait element and click               xpath=(//tbody/tr[contains(@class,"row")]//td[@class="action-checkbox"]//label)[2]
+   wait until page contains             2 of
+   wait element and click               xpath=(//tbody/tr[contains(@class,"row")]//td[@class="action-checkbox"]//label)[1]
+   wait element and click               xpath=(//tbody/tr[contains(@class,"row")]//td[@class="action-checkbox"]//label)[2]
+   wait until page does not contain     2 of
+
+Check one select
+   wait element and click               xpath=(//tbody/tr[contains(@class,"row")]//td[@class="action-checkbox"]//label)[1]
+   wait until page contains             1 of
+   wait element and click               xpath=(//tbody/tr[contains(@class,"row")]//td[@class="action-checkbox"]//label)[1]
+   wait until page does not contain     1 of
+
+
 
 Add New Product                          [Arguments]          ${add}
     Wait Element And Click               xpath=//div[@class="modal-footer"]//a[contains(.,"${add}")]
@@ -327,10 +375,10 @@ Edit Product                      [Arguments]       ${sku}      ${desc}
     wait element and click         xpath=//a[contains(.,"Edit")]
     wait until page contains         Edit Product ${sku}
     wait until element is visible   ${description_field}
-    Sleep                            2 sec
     input text                         ${description_field}      ${desc}
     Save
     wait until page contains        Product ${sku}
+    Sleep                           2 sec
 
 
 
@@ -380,7 +428,7 @@ Add Address in Form
 
 Valid Data ASN Address                          [Arguments]         ${first name}      ${post_code}            ${item}       ${id_ship}
     #calendar
-    wait until page contains             New ASN
+
     Wait Element And Click               ${calendar_button}
     wait element and click               ${today_button}
     #click element                       ${upload_file}
@@ -400,7 +448,7 @@ Valid Data ASN Address                          [Arguments]         ${first name
     Capture Page Screenshot             ${TEST NAME}-{index}.png
 
 
-Valid Data ASN                          [Arguments]                           ${item}       ${id_ship}
+Valid Data ASN                          [Arguments]                           ${item}
     #calendar
     Wait Element And Click               ${calendar_button}
     wait element and click               ${today_button}
@@ -420,8 +468,6 @@ Valid Data ASN                          [Arguments]                           ${
     input text                         ${items_field}                         ${item}
     wait element and click             ${items_list}
     wait until page contains element         xpath=//table[@class="table nowrap"]//td[contains(.,"${item}")]
-    click button                       Save
-    wait until page contains element       xpath=//table//td//a[contains(.,"${id_ship}")]
     Capture Page Screenshot             ${TEST NAME}-{index}.png
 
 
@@ -492,6 +538,7 @@ wait company                             [Arguments]           ${company}
    wait until page contains element           xpath=//table//td[contains(.,"${company}")]
 
 Get Id ASN
+    Sleep                              2 sec
     wait until element is visible             xpath=(//table//td//a[contains(.,"FASN")])[1]
     ${id}=                              Get Element Attribute           xpath=(//table//td//a[contains(.,"FASN")])[1]@text
     [return]                             ${id}
@@ -524,15 +571,26 @@ Empty Fields Shipping               [Arguments]             ${add}
     Check Validation Form           New Shipping Option
 
 
-Valid Data Shipping                 [Arguments]                ${Some}               ${post}
+Valid Data Shipping                 [Arguments]                ${Some}      ${select_all}           ${post}
     wait until element is visible   ${som_name_field}
     input text                      ${som_name_field}                           ${Some}
     Select Post                     WMP YAMATO
-    click element                   xpath=//a[@ng-click='$ctrl.selectAllCountries()']
+    click element                   ${select_all}
     Sleep                           1 sec
     click button                    Save
     wait until page contains element      xpath=//table[@class="table table-hover nowrap"]/tbody//a[contains(.,"${Some}")]/../..//td[contains(.,"${post}")]
     Capture Page Screenshot             ${TEST NAME}-{index}.png
+
+Valid Data Shipping Cross          [Arguments]                ${Some}      ${country}           ${post}
+    wait until element is visible   ${som_name_field}
+    input text                      ${som_name_field}                           ${Some}
+    Select Post                     WMP YAMATO
+    Select Post (SO)                      ${country}
+    Sleep                           1 sec
+    click button                    Save
+    wait until page contains element      xpath=//table[@class="table table-hover nowrap"]/tbody//a[contains(.,"${Some}")]/../..//td[contains(.,"${post}")]
+    Capture Page Screenshot             ${TEST NAME}-{index}.png
+
 
 Edit Shipping Options                  [Arguments]       ${id_ship}
     wait element and click             xpath=//a[contains(.,"${id_ship}")]
@@ -590,7 +648,7 @@ Invalid Data Order
     click button                     Save
 
 
-Valid Data Order                  [Arguments]      ${id_order}  ${courier}    ${Xm}    ${table_xm}       ${status}
+Valid Data Order                  [Arguments]      ${id_order}     ${courier}   ${country}    ${Xm}    ${table_xm}       ${status}
     ${id}=                          Get Rand ID          ${order_id}
     wait until element is visible     ${full_name_field_order}
     wait until page contains element      ${full_name_field_order}
@@ -687,6 +745,19 @@ check labels order (Admin)         [Arguments]        ${label}
 Check Package Item (Order)            [Arguments]           ${colon}              ${data}
   wait until page contains element            xpath=//div[@class="panel-body" and contains(.,"${colon}") and contains(.,"${data}")]
 
+
+
+
+Check Copy Action         [Arguments]         ${check}
+  wait until page contains     Are you sure you want to copy this Order?
+  click button                 ${check}
+  wait until page does not contain     Are you sure you want to copy this Order?
+
+
+Check Copy                  [Arguments]         ${copy}
+  wait element and click      xpath=//button[contains(.,"${copy}")]
+
+
 Empty Fields Address Book                [Arguments]        ${add}
     Wait settings and Click        Address Book
     wait until page contains        Address Book
@@ -735,6 +806,7 @@ Long Symbols Address
 Edit Address                      [Arguments]     ${name}
     wait element and click            xpath=//a[contains(.,"${name}")]
     wait until page contains          Edit Address
+    wait until element is visible        ${company_field_address}
     input text                          ${company_field_address}              ${mycompany}
     click button                        Save
     wait company                           ${mycompany}
@@ -835,6 +907,8 @@ Check Links in Woocommerce
    wait error this is required    woocommerce          shop_url                        This field is required
    wait error this is required    woocommerce          consumer_key                    This field is required
    wait error this is required    woocommerce          consumer_secret                 This field is required
+   wait until page contains       If a Webhook is enabled, orders will be pushed to our system instantly. If it’s disabled - your orders will be fetched within scheduled period.
+   wait until page contains element  xpath=//div[@class="form-group row ng-isolate-scope" and contains(.,"Enable Webhook") and contains(.,"Yes") and contains(.,"No")]
 
 Check Enter data Woocommerce    [Arguments]             ${text}          ${text2}         ${text3}
    input text                   xpath=//input[@ng-model="$ctrl.woocommerce.shop_url"]     ${text}
@@ -861,24 +935,6 @@ Check Links in Shipstation
    wait error this is required    shipstation          shop_name                        This field is required
    wait error this is required    shipstation          api_key                   This field is required
    wait error this is required    shipstation          api_secret                 This field is required
-
-
-Check Enter data Shipstation
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 Password do not match      [Arguments]              ${old_pass}           ${pass1}
     input text                     name=old_password             ${old_pass}
@@ -907,18 +963,24 @@ Change Password                    [Arguments]      ${old_pass}    ${pass1}   ${
      click button                   Change my password
      wait until page contains       Dashboard
 
-Get Mail link Temp                            [Arguments]            ${res}
-    ${url_right}=                        Fetch From Right     ${res}["mail_text_only"]    /password/reset
-    ${url_left}=                         Fetch From Left      ${url_right}           \\n
-    ${url}=                              Fetch From Left      ${url_left}            <br>
-    ${link}=                             Catenate             SEPARATOR=             ${SERVER}/password/reset           ${url}
+#Get Mail link Temp                            [Arguments]            ${res}
+#    ${url_right}=                        Fetch From Right     ${res}["mail_text_only"]    /password/reset
+#    ${url_left}=                         Fetch From Left      ${url_right}           \\n
+#    ${url}=                              Fetch From Left      ${url_left}            <br>
+#    ${link}=                             Catenate             SEPARATOR=             ${SERVER}/password/reset           ${url}
+#    [return]                             ${link}
+
+Get Mail link Gmail                           [Arguments]            ${res}    ${from}         ${till}     ${serar}
+    ${url_right}=                        Fetch From Right     "${res}"                          ${from}
+    ${url_left}=                         Fetch From Left      ${url_right}          ${till}
+    ${link}=                             Catenate             SEPARATOR=             ${serar}           ${url_left}
     [return]                             ${link}
 
-Get Mail link Gmail                           [Arguments]            ${res}
-    ${url_right}=                        Fetch From Right     "${res}"                          /password/reset/
-    ${url_left}=                         Fetch From Left      ${url_right}           \r\n
-    ${link}=                             Catenate             SEPARATOR=             ${SERVER}/password/reset/           ${url_left}
-    [return]                             ${link}
+
+Get Mail Assiged -1                          [Arguments]            ${res}    ${from}         ${till}
+    ${url_right}=                        Fetch From Right     "${res}"                 ${from}
+    ${url_left}=                         Fetch From Left      ${url_right}           ${till}
+    [return]                             ${url_left}
 
 Check Mail                               [Arguments]          ${email}               ${message_id}
     ${result}=                           get mailbox          ${email}               ${message_id}
@@ -993,6 +1055,20 @@ Search in Client                  [Arguments]           ${id}
    input text                                      xpath=//div[@class="search-block"]//input       ${id}
    click element                                   xpath=//div[@class="search-block"]//button
 
+Check Filter in Client             [Arguments]          ${data}
+   wait element and click          xpath=//li/a[contains(.,"${data}")]
+
+Check Filter in Client - Order             [Arguments]          ${data}
+   wait element and click          xpath=//a/span[contains(.,"${data}")]
+
+Click x in filter                   [Arguments]           ${remove}
+   wait until page contains element           xpath=//li[contains(.,"${remove}")]//a/i
+   wait until element is not visible          xpath=//div[@class="loading-css"]
+
+Sorting in Client                   [Arguments]        ${data}
+   wait element and click              xpath=//thead//a[contains(.,"${data}")]
+
+
 
 Search Not Found         [Arguments]               ${name}
     sleep                                   2 sec
@@ -1004,6 +1080,12 @@ Check Data                     [Arguments]           ${name}           ${equal}
 
 Check Order Data             [Arguments]        ${type}          ${name}
    wait until page contains element          xpath=//div[@class="panel-body panel-table"]//tr[contains(.,"${type}") and contains(.,"${name}")]
+
+Check Order Workshop          [Arguments]       ${type}            ${data}
+   wait until page contains element          xpath=//div[@class="accordion-body" and contains(.,"${type}") and contains(.,"${data}")]
+
+Check Item in Workshop          [Arguments]       ${type}         ${data}
+   wait until page contains element          xpath=//table[@class="table table-hover"]//thead[contains(.,"${type}")]/..//tbody[contains(.,"${data}")]
 
 Check Data Tracking             [Arguments]         ${trac}           ${numb}
    wait until page contains element       xpath=//div[@class="panel-body" and contains(.,"${trac}") and contains(.,"${numb}")]
@@ -1045,7 +1127,7 @@ Select Client         [Arguments]              ${num}           ${user}
    wait element and click                  xpath=//li[@class="select2-results__option select2-results__option--highlighted" and contains(.,"${user}")]
 
 Select Client Crowd          [Arguments]         ${client}
-   wait element and click                  xpath=//span[@aria-labelledby="select2-id_ordercsvupload_set-0-client-container"]
+   wait element and click                  xpath=//span[@aria-labelledby="select2-id_workshopordersimportrecord_set-0-client-container"]
    wait until element is visible           xpath=//input[@class="select2-search__field"]
    input text                              xpath=//input[@class="select2-search__field"]                    ${client}
    wait element and click                  xpath=//li[@class="select2-results__option select2-results__option--highlighted" and contains(.,"${client}")]
@@ -1066,22 +1148,48 @@ Input data in field  [Arguments]            ${id}              ${data}
     wait until element is visible         xpath=//input[@id="${id}"]
     input text                            xpath=//input[@id="${id}"]                ${data}
 
-Create Sales Order   [Arguments]         ${phone}         ${id_order}   ${client}      ${Xm}    ${table_xm}       ${status}
+Create Sales Order   [Arguments]     ${post_code}    ${phone}       ${country}   ${id_order}   ${courier}   ${client}      ${Xm}    ${table_xm}       ${status}
     wait until page contains element      ${full_name_field_order}
     input text                       ${full_name_field_order}                  ${first name}${last name}
     input text                       ${address_1_field_order}                  ${address_1}
-    input text                       ${city_field_order}                        ${city}
     input text                       ${state_field_order}                       ${state}
     input text                       ${postal_code_field_order}                ${post_code}
     Select Country                   ${country}
     input text                       ${phone_field_order}                      ${phone}
     input text                       ${order_id_field}                         ${id_order}
-    Select Post Order                WMP YAMATO
+    Select Post Order                ${courier}
     Select Client Order                ${client}
     input text                         ${items_field_order}                         ${Xm}
     wait element and click             xpath=//div[@class="angucomplete-title ng-binding ng-scope" and contains(.,"${Xm}") and contains(.,"${status}")]
     wait until page contains element         xpath=//td[contains(.,"${table_xm}")]
-    click button                      Save
+
+
+Create Sales Order 2   [Arguments]     ${post_code}    ${phone}       ${country}   ${id_order}   ${courier}    ${locator}   ${client}      ${Xm}    ${table_xm}       ${status}
+    wait until page contains element      ${full_name_field_order}
+    input text                       ${full_name_field_order}                  ${first name}${last name}
+    input text                       ${address_1_field_order}                  ${address_1}
+    input text                       ${postal_code_field_order}                ${post_code}
+    Select Country                   ${country}
+    input text                       ${phone_field_order}                      ${phone}
+    input text                       ${order_id_field}                         ${id_order}
+    Select Post Order (DHL or Fedex)                 ${courier}              ${locator}
+    Select Client Order                ${client}
+    input text                         ${items_field_order}                         ${Xm}
+    wait element and click             xpath=//div[@class="angucomplete-title ng-binding ng-scope" and contains(.,"${Xm}") and contains(.,"${status}")]
+    wait until page contains element         xpath=//td[contains(.,"${table_xm}")]
+
+Create Sales Order (Fedex)   [Arguments]     ${post_code}    ${phone}       ${country}   ${id_order}   ${courier}    ${locator}       ${Xm}    ${table_xm}       ${status}
+    wait until page contains element      ${full_name_field_order}
+    input text                       ${full_name_field_order}                  ${first name}${last name}
+    input text                       ${address_1_field_order}                  ${address_1}
+    input text                       ${postal_code_field_order}                ${post_code}
+    Select Country                   ${country}
+    input text                       ${phone_field_order}                      ${phone}
+    input text                       ${order_id_field}                         ${id_order}
+    Select Post Order (DHL or Fedex)                 ${courier}              ${locator}
+    input text                         ${items_field_order}                         ${Xm}
+    wait element and click             xpath=//div[@class="angucomplete-title ng-binding ng-scope" and contains(.,"${Xm}") and contains(.,"${status}")]
+    wait until page contains element         xpath=//td[contains(.,"${table_xm}")]
 
 
 Show in Table        [Arguments]           ${fsn}  ${cpo}   ${track}        ${cour}
@@ -1100,7 +1208,8 @@ Vendor bill item in Table        [Arguments]           ${fsn}  ${cpo}   ${track}
 Show ASN             [Arguments]           ${refer}
     wait until page contains element           xpath=//tr[@class="row1"][contains(.,"${refer}")]//td[contains(.,"FASN")]
 
-
+check status and state orders         [Arguments]         ${status}         ${state}
+   wait until page contains element       xpath=//div[@id="content-main"][contains(.,"${status}") and contains(.,"${state}") or contains(@class,"total") and contains(.,"0 sales orders")]
 
 # Admin->Product
 
@@ -1270,7 +1379,7 @@ Select role (3pl user)
 
 
 Scroll Page To Location          [Arguments]       ${x}      ${y}
-    execute javascript           window.ScrollTo(${x}),${y})
+    execute javascript           window.scrollBy(${x}, ${y});
 
 
 Create Client                [Arguments]                ${client_name}           ${find_user}               ${email_client}       ${rand_refer}
@@ -1386,6 +1495,10 @@ show asn in table            [Arguments]                  ${fasn}
 show shipping in table         [Arguments]               ${name}             ${courier}         ${country}
   wait until page contains element               xpath=//table//tr[contains(.,"${name}") and contains(.,"${courier}") and contains(.,"${country}")]
 
+show shipping in table 2 arg           [Arguments]                         ${name}       ${courier}
+  wait until page contains element               xpath=//table//tr[contains(.,"${name}") and contains(.,"${courier}")]
+
+
 click bulk            [Arguments]                         ${name}
   wait element and click                      xpath=//table//tr//a[contains(.,"${name}")]
 
@@ -1407,6 +1520,10 @@ check data which are not correct     [Arguments]                ${field}        
 
 check data for order     [Arguments]              ${field}          ${data}
     wait until page contains element            xpath=//table[@class="table table-hover" and contains(.,"${field}") and contains(.,"${data}")]
+
+
+check data for order (crossdocking)     [Arguments]             ${name}              ${value}
+    wait until page contains element           xpath=//table[contains(.,"${name}")]/..//td[contains(.,"${value}")]
 
 ####
 
@@ -1435,14 +1552,14 @@ Inventory Item        [Arguments]             ${item}     ${status}
     wait element and click                  xpath=//li[contains(@class,"select2-results__option") and contains(.,"${status}")]
 
 
-Add Stock Adjustment           [Arguments]               ${item}      ${status}
+Add Stock Adjustment           [Arguments]               ${item}      ${status}    ${qty}
    click element                xpath=//a[contains(.,"Add stock adjustment")]
    wait until page contains     Add stock adjustment
    header link admin            Stock adjustment lines           Add another Stock adjustment line
    click element                xpath=//div[@class="add-row" and contains(.,"Add another Stock adjustment line")]
    wait until page contains     Stock adjustment line
    Inventory Item               ${item}        ${status}
-   input text                   id=id_lines-0-quantity              10
+   input text                   id=id_lines-0-quantity              ${qty}
    click element                name=_save
 
 Approve stock adjustment      [Arguments]            ${status}
@@ -1471,10 +1588,23 @@ Approve Order                     [Arguments]      ${fsn}          ${approve}
    wait until page contains    Order ${fsn} Details
    wait element and click      xpath=//button[contains(.,"${approve}")]
 
+Approve Order - Order                     [Arguments]      ${fsn}          ${approve}
+   Check Item in Search       ${fsn}
+   Open Check Order           ${fsn}
+   wait until page contains    Order ${fsn} Details
+   wait element and click      xpath=//button[contains(.,"${approve}")]
+
+
 Check Item in Search                         [Arguments]         ${order}
    wait until element is visible          name=q
    input text                             name=q                ${order}
    wait element and click                          xpath=//*[@class="search-block-submit"]
+
+Check Item in Search (Client)          [Arguments]           ${order}
+   wait until element is visible          xpath=//
+   input text                             name=q                ${order}
+   wait element and click                          xpath=//*[@class="search-block-submit"]
+
 
 Check Filter                    [Arguments]      ${num}     ${client}
    Select Client                  ${num}    ${client}
@@ -1576,7 +1706,7 @@ Delete user Contact         [Arguments]         ${text}
 
 Delete Something              [Arguments]            ${text}
    wait element and click               xpath=(//tr[contains(@class,"row")]//a[contains(.,"XM01")]/../..//td)[1]
-   wait until page contains             1 of 100 selected
+   wait until page contains             1 of
    Delete                               Delete selected ${text}
 
 
@@ -1735,25 +1865,26 @@ Check ASN CSV Upload            [Arguments]         ${file}   ${client}      ${m
     wait until page contains       ${message}
 
 
-Check Order CSV Upload            [Arguments]         ${file}   ${client}      ${message}
-    Go To                         ${ADMIN}orders/ordercsvupload/
-    wait until page contains           Select order csv upload to change
-    Add report                     Add order csv upload            Add order csv upload
+Check Order CSV Upload            [Arguments]         ${file}   ${client}      ${message}   ${message2}
+    Go To                         ${ADMIN}orders/ordersimportrecord/
+    wait until page contains         Select orders import record to change
+    Add report                     Add orders import record            Add orders import record
     Upload Item File              	${client}    order      ${file}
     sleep                          2 sec
     #wait element and click         name=_save
     wait until page contains element    name=_save
     click button                    name=_save
-    wait until page contains       The order csv upload
+    wait until page contains       The orders import record
     ${item_csv}=                   get element attribute                   xpath=//tr[@class="row1"]//a@text
     log to console                 ${item_csv}
     Open Check Order               ${item_csv}
     set suite variable             ${save_item_csv}        ${item_csv}
-    wait element and click         xpath=//input[contains(@value,"Validate Order Csv Upload")]
-    wait until page contains       The order csv upload "${save_item_csv}" was changed successfully.
-    Sleep                          3 sec
-    Open Check Order               ${save_item_csv}
+    wait element and click         xpath=//input[contains(@value,"Validate Orders Import Record")]
+    wait until page contains       ${save_item_csv} successfully set to Processing
+    Sleep                          4 sec
+    reload page
     wait until page contains       ${message}
+    wait until page contains       ${message2}
 
 
 Check SO CSV Upload            [Arguments]        ${file}   ${client}      ${message}
@@ -1775,6 +1906,28 @@ Check SO CSV Upload            [Arguments]        ${file}   ${client}      ${mes
     Sleep                          3 sec
     Open Check Order               ${save_item_csv}
     wait until page contains       ${message}
+
+
+Workshop Order CSV Upload            [Arguments]         ${file}   ${client}
+    wait until page contains      Select workshop orders import record to change
+    Add report                     Add workshop orders import record            Add workshop orders import record
+    Select Fields                 Crowd funding order          FSBN0000001           FSBN0000001
+    Upload Item File              	${client}    order      ${file}
+    sleep                          3 sec
+    #wait element and click         name=_save
+    wait until page contains element    name=_save
+    click button                    name=_save
+    wait until page contains       The workshop orders import record
+    ${item_csv}=                   get element attribute                   xpath=//tr[@class="row1"]//a@text
+    log to console                 ${item_csv}
+    Open Check Order               ${item_csv}
+    set suite variable             ${save_item_csv}        ${item_csv}
+    wait element and click         xpath=//input[contains(@value,"Validate Workshop Orders Import Record")]
+    wait until page contains       ${save_item_csv} successfully set to Processing
+    Sleep                          3 sec
+    Go To                          ${ADMIN}orders/workshopordersimportrecord/
+    Open Check Order               ${save_item_csv}
+
 
 
 
@@ -1799,3 +1952,130 @@ Select Fields (Client, Courier) SO              [Arguments]      ${aria}     ${c
 
 click exist b2c                  [Arguments]          ${cost}           ${add_cost}
    wait element and click          xpath=//tr[@class="row1"]//td[@class="field-cost" and contains(.,"${cost}")]/..//td[@class="field-additional_cost" and contains(.,"${add_cost}")]/..//a
+
+
+## Notification
+
+choose checkbox             [Arguments]     ${status}     ${text}         ${title}
+  wait element and click                       xpath=//tr[contains(@class,"row") and contains(.,"${status}") and contains(.,"${text}") and contains(.,"${title}")]/td//label
+
+
+## Dashboard
+
+check onboarding in dashboard                 [Arguments]        ${step}
+  wait element and click          xpath=//div[@class="events-wrapper"]//div[@class="number"]/../../a[contains(.,"${step}")]
+   wait until page contains         Select client to change
+
+check order in dashboard            [Arguments]   ${state}   ${title}
+   Go To                          ${ADMIN}
+   wait until page contains        Dashboard
+   Sleep                           2 sec
+   Scroll Page To Location         100         900
+   Wait Element is Visible And Click            xpath=//a[contains(.,"${state}")]
+   wait until page contains       ${title}
+
+check exceptions in dashboard            [Arguments]        ${except}             ${num}       ${status}         ${state}
+  Go To                          ${ADMIN}
+  wait until page contains        Dashboard
+  Sleep                           2 sec
+  Scroll Page To Location         100         2000
+  Wait Element is Visible And Click          xpath=//td[contains(.,"${except}")]/../td[${num}]
+  wait until page contains        Select sales order to change
+  wait until page contains element       xpath=//div[@id="content-main"][contains(.,"${status}") and contains(.,"${state}") and contains(.,"${except}") or contains(@class,"total") and contains(.,"0 sales orders")]
+
+check customs activity           [Arguments]         ${cust}
+  Go To                          ${ADMIN}
+  wait until page contains        Dashboard
+  Scroll Page To Location        100        2000
+  Wait Element is Visible And Click         xpath=//td[contains(.,"${cust}")]/a
+  wait until page contains       Change client
+  wait until page contains element        xpath=//*[@class="form-row field-name" and contains(.,"Name")]//input[@value="${cust}"]
+  wait until page contains element        xpath=//*[@class="form-row field-status" and contains(.,"Status") and contains(.,"Active")]
+
+check PENDING FULFILLMENT          [Arguments]          ${geo}            ${status}      ${state}
+  Go To                          ${ADMIN}
+  wait until page contains       Dashboard
+  Wait Element is Visible And Click         xpath=//td[contains(.,"${geo}")]/a
+  wait until page contains       Select sales order to change
+  wait until page contains element      xpath=//div[@id="content-main"][contains(.,"${status}") and contains(.,"${state}") or contains(@class,"total") and contains(.,"0 sales orders")]
+
+
+check Widgets in Admin Panel         [Arguments]        ${status_order}
+  Go To                          ${ADMIN}
+  wait until page contains       Dashboard
+  Wait Element is Visible And Click         xpath=//div[@class="row"]//span[contains(.,"${status_order}")]/..//a
+  wait until page contains        Select sales order to change
+  wait until page contains element      xpath=//div[@id="content-main"][contains(.,"${status_order}") and contains(.,"${status_order}") or contains(@class,"total") and contains(.,"0 sales orders")]
+
+
+############## Developers #################
+
+check links on developer's page       [Arguments]             ${text}
+  wait until page contains element            xpath=//ul[@class="dev-link-list"]//a[contains(.,"${text}")]
+
+
+check links on developer       [Arguments]             ${text}
+  wait element and click            xpath=//ul[@class="dev-link-list"]//a[contains(.,"${text}")]
+
+
+########### Notifications #################
+
+Notifications Client            [Arguments]         ${notific}
+   wait element and click        xpath=//a[@class="dropdown-toggle"]/i[@class="mdi mdi-bell"]
+   wait until page contains element   xpath=//div[@class="notifications-title"]
+   wait until page contains element   xpath=//span[@ng-bind="notification.text" and contains(.,"${notific}")]
+   Capture Page Screenshot             ${TEST NAME}-{index}.png
+
+Notifications disapper Client            [Arguments]         ${notific_dis}
+   wait element and click        xpath=//a[@class="dropdown-toggle"]/i[@class="mdi mdi-bell"]
+   wait until page contains element   xpath=//div[@class="notifications-title"]
+   page should not contain element   xpath=//span[@ng-bind="notification.text" and contains(.,"${notific_dis}")]
+   Capture Page Screenshot             ${TEST NAME}-{index}.png
+
+
+Show Order in sequence           [Arguments]       ${num}       ${sku}         ${desc}
+    wait until page contains element          xpath=//*[@class="row${num}" and contains(.,"${sku}") and contains(.,"${desc}")]
+
+Check notifications      [Arguments]      ${notif}
+   wait element and click         xpath=//div[@class="s2" and contains(.,"${notif}")]
+   wait until page contains element       xpath=//*[@class="row" and contains(.,"${notif}")]
+
+Check enable notifications    [Arguments]     ${data}
+   page should contain element          xpath=//li[@class="form-group row" and contains(.,"${data}") and contains(.,"Enable")]
+
+Check disable notifications    [Arguments]     ${data}
+   wait element and click          xpath=//li[@class="form-group row" and contains(.,"${data}")]//label[contains(.,"Disable")]
+
+Radio button Approve           [Arguments]        ${radio}
+   wait element and click         xpath=//span[contains(.,"${radio}")]/../../input
+   click button                   Save
+    wait until page contains      Successfully updated preferences
+
+
+### Crossdocking
+
+Check client's preference                 [Arguments]            ${manual}
+    wait until page contains element       xpath=//label[contains(.,"Order approval type")]/..//span[@title="${manual}"]
+
+check labels and fileds             [Arguments]          ${desc}      ${country}          ${qty}     ${value}      ${weigth}
+   wait until page contains element       xpath=//thead/tr[contains(.,"${desc}") and contains(.,"${country}") and contains(.,"${qty}") and contains(.,"${value}") and contains(.,"${weigth}")]
+
+
+Order for crossdocking            [Arguments]         ${country}       ${id_order}    ${courier}
+    wait until element is visible     ${full_name_field_order}
+    wait until page contains element      ${full_name_field_order}
+    input text                       ${full_name_field_order}                  ${first name}${last name}
+    input text                       ${address_1_field_order}                  ${address_1}
+    input text                       ${city_field_order}                        ${city}
+    input text                       ${state_field_order}                       ${state}
+    input text                       ${postal_code_field_order}                ${post_code}
+    click element                    //*[@placeholder="Select or search a country in the list..."]/..//input
+    input text                        //*[@placeholder="Select or search a country in the list..."]/..//input                ${country}
+    click element                      //div[@class="option ui-select-choices-row-inner" and contains(.,"${country}")]
+    input text                       ${phone_field_order}                      ${phone}
+    input text                       ${order_id_field}                         ${id_order}
+    Select Post Order                ${courier}
+
+
+Check data in crossdocking          [Arguments]         ${name}          ${value}
+   page should contain element       xpath=//div[@class="panel-body panel-table" and contains(.,"${name}") and contains(.,"${value}")]

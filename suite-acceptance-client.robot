@@ -9,7 +9,6 @@ Suite Teardown                          Close All Browsers
 
 *** Test Cases ***
 TC195 - Login in Admin Panel (valid)
-    [Tags]                               Login
     ${email}=                          Get Email
     Set Suite Variable                  ${REG_EMAIL}                ${email}
     Login                               ${login_admin}        ${pass_admin}
@@ -38,6 +37,10 @@ TC523,TC524, TC526 - Create password as a user
     Wait Until Page Contains            Password reset
     Capture Page Screenshot             ${TEST NAME}-{index}.png
 
+TC525 - Create password as a user - Invalid passwords
+    [Tags]                             InvalidPass
+    Invalid Email - Reset Password      test@test                Enter a valid email address
+
 TC527 - Create password as a user - Success
 
     Input text                          name=email                    ${REG_EMAIL}
@@ -46,12 +49,12 @@ TC527 - Create password as a user - Success
     Capture Page Screenshot             ${TEST NAME}-{index}.png
 
     Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
-    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=150
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=200
     ${body}=	             get email body	       ${LATEST}
     #log to console           ${body}
-    ${pass_link}=	             Get Mail link Gmail 	      ${body}
+    ${pass_link}=	             Get Mail link Gmail  	      ${body}    /password/reset       \r\n      ${SERVER}/password/reset
     log to console           ${pass_link}
-    Delete Email                         ${LATEST}
+    #Delete Email                         ${LATEST}
     Close Mailbox
     Go To                               ${pass_link}
     Reset Password                      Enter new password      ${reset_pass}       ${reset_pass}             Password reset complete
@@ -62,6 +65,19 @@ TC527 - Create password as a user - Success
     wait until page contains            Company Details
     wait until page contains            Company Address
     Capture Page Screenshot             ${TEST NAME}-{index}.png
+
+Password reset unsuccessful
+    [Tags]                    Pass
+    Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=10
+    ${body}=	             get email body	       ${LATEST}
+    #log to console           ${body}
+    ${pass_link}=	             Get Mail link Gmail  	      ${body}    /password/reset       \r\n      ${SERVER}/password/reset
+    log to console           ${pass_link}
+    Delete Email                         ${LATEST}
+    Close Mailbox
+    Go To                               ${pass_link}
+    wait until page contains           Password reset unsuccessful
 
 TC293 - Login as a user
     [Tags]                              Register
@@ -94,6 +110,30 @@ TC508,TC509 - Continue register (Prepayment Method)
     Capture Page Screenshot             ${TEST NAME}-{index}.png
     delete all cookies
 
+
+Account Registration Completed
+    [Tags]                        Welcome
+    Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=30
+    ${HTML}=	      get email body	${LATEST}
+    should contain        "${HTML}"      A notification will be sent to you within 24 hours once your warehouse assignment is completed
+    Delete Email                         ${LATEST}
+    Close Mailbox
+
+Welcome to Floship
+    [Tags]                        Welcome
+    Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=30
+    ${HTML}=	      get email body	${LATEST}
+    should contain        "${HTML}"      Dear user_12345!
+    should contain        "${HTML}"      Welcome to Floship! Thanks so much for joining us
+    should contain        "${HTML}"      Your username is: ${REG_EMAIL}
+    ${pass_link}=	             Get Mail link Gmail  	      ${HTML}    /password/reset       \r\n      ${SERVER}/password/reset
+    log to console           ${pass_link}
+    Delete Email                         ${LATEST}
+    Close Mailbox
+
+
 TC301 - Login to Administration page
     [Tags]                             NewCompany
     Go To                               ${SERVER}
@@ -107,6 +147,14 @@ TC302 - TC307 - Search company in Administration page in Flochip>Clients section
     wait until page contains             The client "${get_company}" was changed successfully.
     Capture Page Screenshot             ${TEST NAME}-{index}.png
     delete all cookies
+
+
+
+
+
+
+
+
 
 TC309 - TC310 - Click "Add Product" on the "Product List" page
     Go To                                ${SERVER}
@@ -144,6 +192,17 @@ TC568 - Change address
    Go To                              ${SERVER}/address-book
    Edit Address                      ${first name} ${last name}
 
+
+Warehouse Assigned (check mail)
+    [Tags]                        Welcome
+    Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=30
+    ${HTML}=	      get email body	${LATEST}
+    should contain        "${HTML}"      The warehouse address where you should send your product to is listed below
+    Delete Email                         ${LATEST}
+    Close Mailbox
+
+
 ##ASN
 
 TC313,TC314 Click "Add ASN" in the "Advanced Shipping Notice List" page
@@ -152,8 +211,14 @@ TC313,TC314 Click "Add ASN" in the "Advanced Shipping Notice List" page
     Header title block                  Advanced Shipping Notice
     click Add new                       Add ASN
 
-TC553,TC315,TC317 - Add new ASN- Enter data and choose address from address book (valid)
+TC1111 - TC1112 - Check Warehouse local address
 
+    wait until page contains             New ASN
+    wait until page contains             140 Link Road, , Mongkok, Hong Kong 12345, HK
+    wait until page contains             仓库本地地址18
+
+TC315,TC317 - Add new ASN- Enter data and choose address from address book (valid)
+    reload page
     Valid Data ASN Address               ${first name}   ${post_code}          ${edit_sku}          FASN
     ${id_ship}=                         Get Id ASN
     log to console                      ${id_ship}
@@ -165,16 +230,6 @@ TC503 - Edit ASN
     #Edit ASN                            ${asn_id}    ${long_symbols_255}     ${long_symbols_255} 	${edit_sku}         ${asn_id}
     Edit ASN                            ${asn_id}    ${first name}     ${state} 	${edit_sku}         ${asn_id}
 
-TC506 - Delete ASN (Cancel)
-   Go To                         ${SERVER}/advanced-shipping-notices
-   Cancel before deleting ASN       ${asn_id}
-
-TC507 - Delete ASN (Confirm)
-   Delete ASN                   ${asn_id}
-   wait until page contains    ASN was deleted successfully
-   Success delete              ${asn_id}
-
-
 TC320,TC321 - Click "Add Shipping Option" button
     Go To                               ${SERVER}
     Header link                         Shipping Options
@@ -183,7 +238,7 @@ TC320,TC321 - Click "Add Shipping Option" button
 TC322 - Add new Shipping Option - Enter data (valid)
     ${ship_op}=                        Get Rand ID            ${shipping_name}
     log to console                     ${ship_op}
-    Valid Data Shipping                ${ship_op}           WMP YAMATO
+    Valid Data Shipping                ${ship_op}      ${select_all_counties}      WMP YAMATO
     set suite variable                 ${edit_ship}         ${ship_op}
 
 TC831 - Edit Shipping Option
@@ -459,7 +514,7 @@ TC416 - Order bulk upload: successful upload: Save upload
 
 TC417 - Order bulk upload: successful upload: confirm
     Confirm
-    wait until page contains            Bulk upload was approved successfully               50 sec
+    #wait until page contains            Bulk upload was approved successfully               50 sec
 
     #ORDER 1
 TC418 - TC419 - Order bulk upload: successful upload
@@ -541,8 +596,20 @@ TC504 - Approve ASN (Cancel)
 TC505 - Approve ASN (Confirm)
     Approve ASN                  ${fasn_for_approve}
     Success Approved             ${fasn_for_approve}                       Pending Arrival
+    log to console               ${fasn_for_approve}
 
-    # success
+ASN was created (check mail)
+    [Tags]                        Test
+    Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=30
+    ${HTML}=	      get email body	${LATEST}
+    should contain        "${HTML}"      ASN ${fasn_for_approve}: Pending Arrival
+    should contain        "${HTML}"      Dear ${get_company}
+    Delete Email                         ${LATEST}
+    close mailbox
+
+
+#    # success
 TC456 - SO bulk upload: successful upload - file upload
     Go To                               ${SERVER}/shipping-options/bulk
     Bulk Upload                         Shipping Options Bulk Upload   shipping     1_success.xlsx
@@ -572,7 +639,7 @@ TC458 - SO bulk upload: successful upload - Confirm upload
 
 
 Approve orders immediately Step 1 (upload product)
-    ${sku_app}=                      Get Rand ID             ${sku}
+    ${sku_app}=                      Get Rand ID             ${sku11}
     set suite variable           ${sku_app_immediat}               ${sku_app}
     log to console                ${sku_app_immediat}
     ${sku_for_appr_immediatlly}=             include sku for role      ${sku_app_immediat}
@@ -593,7 +660,7 @@ Approve orders immediately Step 2 (add stock adjastment)
     Go To                         ${ADMIN}stock_adjustment/stockadjustment/
     Login                         ${login_admin}        ${pass_admin}
     wait until page contains      Select stock adjustment to change
-    Add Stock Adjustment          ${sku_app_immediat}                   ${sku_app_immediat} -- Base Item
+    Add Stock Adjustment          ${sku_app_immediat}                   ${sku_app_immediat} -- Base Item   10
     ${status}=                     Get Id Adjustment         Draft
     log to console                 ${status}
     wait until page contains      The stock adjustment "${status}" was added successfully
@@ -604,7 +671,7 @@ Approve orders immediately Step 2 (add stock adjastment)
 #Approve orders immediately Step 3 (upload shipping options)
 #    Go To                               ${SERVER}/shipping-options/bulk
 #    Login                               ${REG EMAIL}               qwerty123!
-#    Bulk Upload                         Shipping Options Bulk Upload   shipping     original.xlsx
+#    Bulk Upload                         Shipping Options Bulk Upload   shipping     4_order_without_OrderID_and_Qty.xlsx
 #    wait until page contains            File uploaded successfully
 #    wait until page contains            Bulk Upload                       40 sec
 #    show buttons in bulk form           Valid 3    Invalid 0    All 3
@@ -630,4 +697,345 @@ Approve orders immediately Step 4 (upload order and check pending fulfilment)
     Go To                              ${SERVER}/orders
     show shipping in table              ${order_approval_bulk}              FS           Pending Fulfillment
 
+## Search + Sort and Filters
+
+TC538 - Check search on products page
+    Go To                         ${SERVER}/inventory/products
+    wait until page contains      Product List
+    Search in Client              Prod_1
+    Sleep                        2 sec
+    show shipping in table         PROD_1              A product one          1234567890
+    Search in Client              Prod_2
+    Sleep                        2 sec
+    show shipping in table         PROD_2              A product two          1234567890
+    Search in Client              ${sku_app_immediat}
+    Sleep                        2 sec
+    show shipping in table       ${sku_app_immediat}              A product one          9
+    Search in Client             ${edit_sku}
+    Sleep                        2 sec
+    show shipping in table             ${edit_sku}             ${edit_desc}           	123456
+
+TC537 - Check filters on products page
+    Go To                         ${SERVER}/inventory/products
+    Check Filter in Client         123456
+    show shipping in table             ${edit_sku}             ${edit_desc}           	123456
+    Click x in filter                123456
+    Go To                         ${SERVER}/inventory/products
+
+    Check Filter in Client        	987654321
+    show shipping in table         PROD_1              A product one          987654321
+    show shipping in table         PROD_2              A product two          987654321
+    show shipping in table         ${sku_app_immediat}	       A product one	      987654321
+    Click x in filter              987654321
+    Go To                         ${SERVER}/inventory/products
+
+    Check Filter in Client        	Out of stock
+    show shipping in table         PROD_1              A product one        0
+    show shipping in table         PROD_2              A product two        0
+    show shipping in table         ${edit_sku}	${edit_desc}	                0
+    Click x in filter             Out of stock
+    Go To                         ${SERVER}/inventory/products
+
+    Check Filter in Client        1 - 20
+    show shipping in table        ${sku_app_immediat}	A product one		9
+    Click x in filter             1 - 20
+    Go To                         ${SERVER}/inventory/products
+
+    Check Filter in Client        21 - 100
+    wait until page does not contain element    xpath=//tbody//a[contains(.,"PROD_1")]
+    wait until page does not contain element    xpath=//tbody//a[contains(.,"PROD_2")]
+    wait until page does not contain element    xpath=//tbody//a[contains(.,"${sku_app_immediat}")]
+    wait until page does not contain element    xpath=//tbody//a[contains(.,"${edit_sku}")]
+    Click x in filter             21 - 100
+    Go To                         ${SERVER}/inventory/products
+
+    Check Filter in Client        Has Batteries
+    show shipping in table         PROD_1              A product one          987654321
+    show shipping in table         PROD_2              A product two          987654321
+    show shipping in table         ${sku_app_immediat}	       A product one	      987654321
+    Click x in filter             Has Batteries
+    Go To                         ${SERVER}/inventory/products
+
+    Check Filter in Client        China
+    show shipping in table         PROD_1              A product one          987654321
+    show shipping in table         PROD_2              A product two          987654321
+    show shipping in table         ${sku_app_immediat}	       A product one	      987654321
+    show shipping in table             ${edit_sku}             ${edit_desc}           	123456
+
+TC539 - Check sorting on products page
+    Go To                         ${SERVER}/inventory/products
+    Sorting in Client             SKU
+
+    wait until page contains element        xpath=//tbody/tr[1][contains(.,"PROD_1")]
+    wait until page contains element        xpath=//tbody/tr[2][contains(.,"PROD_2")]
+    wait until page contains element        xpath=//tbody/tr[3][contains(.,"${sku_app_immediat}")]
+    wait until page contains element        xpath=//tbody/tr[4][contains(.,"${edit_sku}")]
+
+    Sorting in Client             SKU
+    wait until page contains element        xpath=//tbody/tr[1][contains(.,"${edit_sku}")]
+    wait until page contains element        xpath=//tbody/tr[2][contains(.,"${sku_app_immediat}")]
+    wait until page contains element        xpath=//tbody/tr[3][contains(.,"PROD_2")]
+    wait until page contains element        xpath=//tbody/tr[4][contains(.,"PROD_1")]
+
+    Sorting in Client             Stock
+
+    wait until page contains element        xpath=//tbody/tr[1][contains(.,"9")]
+    wait until page contains element        xpath=//tbody/tr[2][contains(.,"0")]
+    wait until page contains element        xpath=//tbody/tr[3][contains(.,"0")]
+    wait until page contains element        xpath=//tbody/tr[4][contains(.,"0")]
+
+TC541 - Export
+    Go To                         ${SERVER}/inventory/products
+    wait element and click         xpath=//tbody//a[contains(.,"PROD_1")]/../..//input
+    wait until page contains element       xpath=//a[contains(.,"Export")]
+
+
+TC837 - Check search on Order page
+    Go To                         ${SERVER}/orders
+    wait until page contains      Order List
+    Search in Client              ${edit_order}
+    Sleep                        2 sec
+    show shipping in table       ${fs_order}  	${edit_order}			Pending Approval
+    Search in Client             ${fs_order}
+    Sleep                        2 sec
+    show shipping in table       ${fs_order}  	${edit_order}			Pending Approval
+
+TC838 - Check search on Order page (invalid)
+    Search in Client             test
+    sleep                       1 sec
+    wait until page contains         You don't have any orders here
+
+TC836 - Check filters on Order page
+    Go To                         ${SERVER}/orders
+    Check Filter in Client - Order          Pending Fulfillment
+    Sleep                        1 sec
+    show shipping in table        	FS	 ${order_approval_bulk}		Pending Fulfillment
+    Click x in filter               Pending Fulfillment
+    Go To                         ${SERVER}/orders
+
+    Check Filter in Client        	WMP YAMATO
+    Sleep                        1 sec
+    show shipping in table        ${edit_order}		WMP YAMATO	      Pending Approval
+    Click x in filter             	WMP YAMATO
+    Go To                         ${SERVER}/orders
+
+    Check Filter in Client        Fulfillment Portal
+    Sleep                        1 sec
+    show shipping in table       ${edit_order}		  WMP YAMATO	    Pending Approval
+    Click x in filter             Fulfillment Portal
+    Go To                         ${SERVER}/orders
+
+    Check Filter in Client       Out of stock
+    Sleep                        1 sec
+    show shipping in table       SAMPLE ORDER 2			Pending Approval	Out of stock
+    show shipping in table       SAMPLE ORDER 1			Pending Approval	Out of stock
+    show shipping in table       ${edit_order}		Pending Approval        Out of stock
+    Click x in filter            Out of stock
+    Go To                         ${SERVER}/orders
+
+    Check Filter in Client        Express
+    Sleep                        1 sec
+    show shipping in table        	${order_approval_bulk}		FedEx IE	     Pending Fulfillment
+    Click x in filter             Express
+    Go To                         ${SERVER}/orders
+
+    Check Filter in Client        Free Shipping
+    Sleep                        1 sec
+    show shipping in table         SAMPLE ORDER 1			Pending Approval	    Out of stock
+    Click x in filter             Free Shipping
+##
+TC835 - Check sorting on Order page
+    Go To                         ${SERVER}/orders
+    Sorting in Client             	Order ID
+    wait until page contains element         xpath=//tbody/tr[1][contains(.,"ID_")]
+    wait until page contains element         xpath=//tbody/tr[2][contains(.,"ID_")]
+    wait until page contains element         xpath=//tbody/tr[3][contains(.,"SAMPLE ORDER 1")]
+    wait until page contains element         xpath=//tbody/tr[4][contains(.,"SAMPLE ORDER 2")]
+
+
+TC556 - Check search on ASN page
+    Go To                         ${SERVER}/advanced-shipping-notices
+    wait until page contains      Advanced Shipping Notice List
+    Search in Client              ${asn_id}
+    Sleep                        1 sec
+    show shipping in table 2 arg        ${asn_id}			Draft
+
+TC557 - Check search on ASN page (invalid)
+    Search in Client             test
+    sleep                       1 sec
+    wait until page contains         You don't have any ASNs here
+
+TC555 - Check filters on ASN page
+    Go To                         ${SERVER}/advanced-shipping-notices
+    Check Filter in Client - Order          Draft
+    Sleep                        1 sec
+    show shipping in table 2 arg        	${asn_id}	            Draft
+    Click x in filter               Draft
+    Go To                         ${SERVER}/advanced-shipping-notices
+
+    Check Filter in Client        	Pending Arrival
+    Sleep                        1 sec
+    show shipping in table 2 arg        FASN		      Pending Arrival
+    Click x in filter             Pending Arrival
+
+##
+TC554 - Check sorting on ASN page
+    Go To                         ${SERVER}/advanced-shipping-notices
+    Sorting in Client             	Status
+    wait until page contains element         xpath=//tbody/tr[1][contains(.,"Draft")]
+    wait until page contains element         xpath=//tbody/tr[2][contains(.,"Pending Arrival")]
+
+TC506 - Delete ASN (Cancel)
+   Go To                         ${SERVER}/advanced-shipping-notices
+   Cancel before deleting ASN       ${asn_id}
+
+TC507 - Delete ASN (Confirm)
+   Delete ASN                   ${asn_id}
+   wait until page contains    ASN was deleted successfully
+   Success delete              ${asn_id}
+
+
+
+TC560 - Check search on Shipping Option page
+    Go To                         ${SERVER}/shipping-options
+    wait until page contains      Shipping Options List
+    Search in Client              ${edit_ship}
+    Sleep                        1 sec
+    show shipping in table 2 arg      ${edit_ship}				WMP YAMATO
+
+    Search in Client            Express
+    sleep                       1 sec
+    show shipping in table 2 arg     Express         FedEx IE
+
+TC561 - Check search on Shipping Option page (invalid)
+    Search in Client             test
+    sleep                       1 sec
+    wait until page contains         You don't have any Shipping Options here
+
+TC559 - Check filters on Shipping Option page
+    Go To                         ${SERVER}/shipping-options
+    Check Filter in Client - Order          FedEx IE
+    Sleep                        1 sec
+    show shipping in table        	Express	        FedEx IE	          US
+    Click x in filter               FedEx IE
+    Go To                         ${SERVER}/shipping-options
+
+    Check Filter in Client        		WMP YAMATO
+    Sleep                        1 sec
+    show shipping in table 2 arg        ${edit_ship}			     	WMP YAMATO
+    Click x in filter             	WMP YAMATO
+
+##
+TC558 - Check sorting on Shipping Option page
+    Go To                         ${SERVER}/shipping-options
+    Sorting in Client             	Name
+    wait until page contains element         xpath=//tbody/tr[1][contains(.,"Express")]
+    wait until page contains element         xpath=//tbody/tr[2][contains(.,"Fast")]
+    wait until page contains element         xpath=//tbody/tr[3][contains(.,"Free")]
+    wait until page contains element         xpath=//tbody/tr[4][contains(.,"${edit_ship}")]
+
+    Go To                         ${SERVER}/shipping-options
+    Sorting in Client             		Courier
+    wait until page contains element         xpath=//tbody/tr[1][contains(.,"FedEx IE")]
+    wait until page contains element         xpath=//tbody/tr[2][contains(.,"FedEx IE")]
+    wait until page contains element         xpath=//tbody/tr[3][contains(.,"DPEX")]
+    wait until page contains element         xpath=//tbody/tr[4][contains(.,"WMP YAMATO")]
+
+
+TC549 - Check sorting on group items page
+    Go To                         ${SERVER}/inventory/group-items
+    wait until page contains      Group Items List
+    Search in Client             ${id_group_variable}
+    Sleep                        1 sec
+    show shipping in table 2 arg      ${id_group_variable}	    test
+
+
+TC1114 - Check Developers page
+    Go To                         ${SERVER}
+    wait settings and click         Developers
+    wait until page contains         Floship API
+    check links on developer's page   Authentication
+    check links on developer's page   Orders
+    check links on developer's page   Products
+    check links on developer's page   ASNs
+    check links on developer's page   Shipping Options
+    check links on developer's page   Couriers
+    wait until page contains element         xpath=//a[contains(.,"Get Access")]
+    wait until page does not contain element         xpath=//a[contains(.,"Try It Out")]
+
+TC1115 - "Get access" button
+    [Tags]                            Token
+    Go To                              ${SERVER}/developers
+    wait element and click             xpath=//a[contains(.,"Get Access")]
+    wait until page contains           Your Access Tokens
+    click button                       Close
+    wait until page contains           Credentials
+    wait until page contains           Production Token
+    ${url}=                            get text                         xpath=//div[@class="block-inner"]//code[1][contains(.,"http")]
+    log to console                     ${url}
+    ${token}=                          get text                      xpath=//div[@class="block-inner"]//code[2]
+    log to console                     ${token}
+    set suite variable                 ${url_}     ${url}
+    set suite variable                 ${token_}    ${token}
+
+TC1116 - Authentication section
+    check links on developer       Authentication
+    wait until page contains       API Documentation
+    wait until page contains       Authentication
+    wait until page contains       Credentials
+    wait until page contains       ${token_}
+    wait until page contains       ${url_}
+
+TC1117 - Orders section
+    wait element and click         xpath=//div[@class="filters-list padding-15"]//a[contains(.,"Orders")]
+    wait until page contains       Order
+    wait until page does not contain element         xpath=//a[contains(.,"Try It Out")]
+
+TC1118 - Products section
+    wait element and click         xpath=//div[@class="filters-list padding-15"]//a[contains(.,"Products")]
+    wait until page contains       Products
+    wait until page does not contain element         xpath=//a[contains(.,"Try It Out")]
+
+TC1119 - ASNs section
+    wait element and click         xpath=//div[@class="filters-list padding-15"]//a[contains(.,"ASNs")]
+    wait until page contains       ASN (Advance Shipping Notice)
+    wait until page does not contain element         xpath=//a[contains(.,"Try It Out")]
+
+TC1120 - Shipping Options section
+    wait element and click         xpath=//div[@class="filters-list padding-15"]//a[contains(.,"Shipping Option")]
+    wait until page contains       Shipping Option
+    wait until page does not contain element         xpath=//a[contains(.,"Try It Out")]
+
+TC1121 - Couriers section
+    wait element and click         xpath=//div[@class="filters-list padding-15"]//a[contains(.,"Couriers")]
+    wait until page contains       Couriers
+    wait until page does not contain element         xpath=//a[contains(.,"Try It Out")]
+    Go To                                               ${SERVER}
+    Logout Client
+
+
+Approve ASN in Admin to check client's mail
+    Go To                            ${ADMIN}asns/asn/
+    Login                            ${login_admin}          ${pass_admin}
+    Check Item in Search                        ${fasn_for_approve}
+    Check ASN Approve                ${fasn_for_approve}    In Review Asn
+    wait until page contains         ${fasn_for_approve} successfully set to In Review
+
+    Go To                            ${ADMIN}asns/asn/
+    Check Item in Search             ${fasn_for_approve}
+    Check ASN Approve                ${fasn_for_approve}  Approve Asn
+    wait until page contains         ${fasn_for_approve} successfully set to Approve
+#    Go To                            ${ADMIN}
+#    Logout Client
+
+ASN was approved (check mail)
+    [Tags]                        Approved
+    Open Mailbox                        host=${MAIL_HOST}       user=${MAIL_USER}          password=${MAIL_PASSWORD}
+    ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=30
+    ${HTML}=	      get email body	${LATEST}
+    should contain        "${HTML}"      ${fasn_for_approve}: Approved
+    should contain        "${HTML}"      Your ASN has been Approved
+    should contain        "${HTML}"      Dear ${get_company}
+    Delete Email                         ${LATEST}
+    close mailbox
 

@@ -1,2 +1,2 @@
 SKU*,Description*,Brand/Manufacturer,UPC/EAN/MPN,Harmonized Code,Gross Weight (kg)*,Gross Length (cm)*,Gross Width (cm)*,Gross Height (cm)*,Customs Value (USD)*,Customs Description*,Category (if known),Lithium Ion Battery (Y/N),Expiry Date (Y/N),Liquid (Y/N),Item Image URL,Packaging SKU*,Country of Manufacture,Unit QTY,Unit type
-SKU1047706,A product one,Example Co,1234567890,987654321,1,10,12,5,123,A product one,,Y,N,N,www.example.com/product_image.jpg,SHIP-READY,CN,1,base item
+SKU111363201,A product one,Example Co,1234567890,987654321,1,10,12,5,123,A product one,,Y,N,N,www.example.com/product_image.jpg,SHIP-READY,CN,1,base item

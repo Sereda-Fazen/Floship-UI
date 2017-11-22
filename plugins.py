@@ -15,7 +15,7 @@ from pip import logger
 
 
 import csv
-
+import random
 
 def write_test(so):
     FILENAME = "testOrder.csv"
@@ -93,11 +93,9 @@ def vendor_cost(fs_number):
 
              ["12345", fs_number, "", "10", "10", "10", "7", "3.1", "4.2"]])
 
-
-
-
-def main():
-    id = vendor_cost("FS23456")
-
-if __name__ == '__main__':
-    main()
+#
+# def main():
+#     id = generate_4_random_and_unique_numbers()
+#
+# if __name__ == '__main__':
+#     main()

@@ -12,6 +12,7 @@ ${Signup}                       xpath=//button[@type='submit']
 ${Add user}                     xpath=//a[contains(.,"Add User")]
 ${Reset pass}                   12345678
 
+
 ${Log in}                       xpath=//a[@class="btn btn-primary"]
 
 ${login_admin}                  cutoreno@p33.org
@@ -28,12 +29,13 @@ ${3pl_client}                  3pl@floship.com
 ${MAIL_PASSWORD}                fJ4qEn5Y
 
 
-
+${select_all_counties}         xpath=//*[@ng-click="$ctrl.selectAllCountries()"]
 
 
 #Data for geristration
 ${comp name}                     mycompany_
 ${order_id}                      ID_
+${cross_dock_id}                 CROSDOC_ID_
 ${comp email}                    testfloship@gmail.com
 ${first name}                    Steve
 ${last name}                     Vai
@@ -162,6 +164,7 @@ ${cpo}             CPO
 ${group}           GR_
 ${track_n}         TC
 ${sku}             SKU
+${sku11}             SKU11
 ${sku_desc}        Desc
 ${tracking}        TNASN
 ${refer}           Refer

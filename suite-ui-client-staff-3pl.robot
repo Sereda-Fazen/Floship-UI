@@ -111,7 +111,7 @@ TC826 - Preparing Two Orders (create order with "Pending Approval" state as Clie
     #Login                             client+gumotmyl@floship.com                   12345678
     wait element and click             xpath=//a[contains(.,"Add Order")]
     wait until page contains            New Order
-    Valid Data Order          ${id_order_cli}   WMP YAMATO    ${client_sku}     ${client_sku}   Base Item
+    Valid Data Order          ${id_order_cli}   WMP YAMATO     ${country}   ${client_sku}     ${client_sku}   Base Item
     wait until page contains             Order Saved Successfully
     Go To                                ${SERVER}/orders
     show order is created                ${id_order_cli}          WMP YAMATO        Pending Approval          Out of stock
@@ -125,7 +125,7 @@ TC826 - Preparing Two Orders (create order with "Pending Approval" state as Clie
     Go To                                  ${SERVER}/orders
     wait element and click             xpath=//a[contains(.,"Add Order")]
     wait until page contains            New Order
-    Valid Data Order          ${id_order_cli_2}   FAKE   ${client_sku}     ${client_sku}   Base Item
+    Valid Data Order          ${id_order_cli_2}   FAKE     ${country}     ${client_sku}     ${client_sku}   Base Item
     wait until page contains             Order Saved Successfully
     Go To                                ${SERVER}/orders
     show order is created                ${id_order_cli_2}          FAKE        Pending Approval          Out of stock
@@ -154,7 +154,7 @@ TC826 - Preparing Pending Approval(create order with "Pending Approval" state as
     Show data in order             Exceptions	         Out of stock
     Show data in order             Shipping Option             ${EMPTY}
     wait until page contains element          xpath=//tbody[contains(.,"${client_sku}")]
-   wait element and click              xpath=//a[contains(.,"BACK TO ORDERS")]
+   wait element and click              xpath=//a[contains(.,"BACK")]
    show order is created              ${client_order}         WMP YAMATO        Pending Approval          Out of stock
    reload page
    Logout Client
@@ -185,7 +185,7 @@ TC887 - Preparing (create order with "Pending Approval" state as Staff User)
     Open Check Order             ${client_order}
     wait until page contains element          xpath=//a[contains(@ng-if,"$ctrl.order.is_order_editable")]
     wait until page contains element         xpath=//button[contains(@ng-repeat,"action in actions")]
-    wait until page contains element       xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element       xpath=//a[contains(.,"BACK")]
 
     show status order               Status              Pending Approval
     Show data in order                 Company            MyCompany
@@ -225,7 +225,7 @@ TC878 - “Back ” from edit mode (Staff User)
    wait until page contains element      ${full_name_field_order}
    input text                       ${full_name_field_order}                  ${first name}${last name}
    input text                       ${address_1_field_order}                  ${address_1}
-   input text                       xpath=//input[@ng-model="$ctrl.order.shipping_address.address_2"]              Stre
+   input text                       xpath=//input[@ng-model="$ctrl.order.shipping_address.address_2"]              Street
    click button                     Back
    wait until page contains element         css=ng-map.map > div:first-child
 
@@ -251,13 +251,13 @@ TC844 - “Cancel” action (Client)
     Confirm Cancel Order            Are you sure you want to perform "Cancel"? This action is not reversible
     wait until page contains        Action was performed successfully
     show status order               Status          Canceled
-    wait element and click              xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait element and click              xpath=//a[contains(.,"BACK")]
     show order is created               ${client_order}         WMP YAMATO        Canceled          Out of stock
    Go To                               ${SERVER}/orders
    wait element and click            xpath=//a[contains(.,"${client_order}")]
    wait until page does not contain element        xpath=//button[contains(@ng-repeat,"action in actions")]
    wait until page does not contain element        xpath=//a[contains(@ng-if,"$ctrl.order.is_order_editable")]
-   wait element and click              xpath=//a[contains(.,"BACK TO ORDERS")]
+   wait element and click              xpath=//a[contains(.,"BACK")]
 
 TC882 - Check link for "SKU" on the dashboard (Client)
    Go To                               ${SERVER}/orders
@@ -279,7 +279,7 @@ TC881 - Check link for "SKU" on the dashboard (Staff User)
 
     wait until page does not contain element          xpath=//a[contains(@ng-if,"$ctrl.order.is_order_editable")]
     wait until page does not contain element         xpath=//button[contains(@ng-repeat,"action in actions")]
-    wait until page contains element       xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element       xpath=//a[contains(.,"BACK")]
     wait until page contains element       xpath=//a[contains(.,"More")]
     show status order               Status          Canceled
     Show data in order                 Company            MyCompany
@@ -306,6 +306,7 @@ TC881 - Check link for "SKU" on the dashboard (Staff User)
     wait until page contains element           xpath=//tbody/tr[contains(.,"Approval Eligibility Date")]/td[contains(@ng-bind,"order.approval_eligibility_date")]
 
     wait until page contains element          xpath=//tbody[contains(.,"${client_sku}")]
+    Go To                                  ${ADMIN}
     Logout Client
 
 TC470 - Add stock adjustment for remove "out of stock" exception
@@ -313,7 +314,7 @@ TC470 - Add stock adjustment for remove "out of stock" exception
    Go To                         ${ADMIN}stock_adjustment/stockadjustment/
    Login                         ${login_admin}        ${pass_admin}
    wait until page contains      Select stock adjustment to change
-   Add Stock Adjustment          ${client_sku}                    ${client_sku} -- Base Item
+   Add Stock Adjustment          ${client_sku}                    ${client_sku} -- Base Item    10
    ${status}=                     Get Id Adjustment         Draft
    log to console                 ${status}
    wait until page contains      The stock adjustment "${status}" was added successfully
@@ -330,14 +331,14 @@ TC846 - Preparing (create order with "Pending Fulfillment" state as Client)
    wait until page contains           Action was performed successfully
    show status order               Status          Pending Fulfillment
    Show data in order             Exceptions               ${EMPTY}
-   wait element and click         xpath=//a[contains(.,"BACK TO ORDERS")]
+   wait element and click         xpath=//a[contains(.,"BACK")]
    Find Order Change Status           ${fs_order_cl_2}       Pending Fulfillment
    Does not find Out of Stock           	 ${fs_order_cl_2}              Out of stock
    click element                   xpath=//a[contains(.,"${fs_order_cl_2}")]
    wait until page does not contain element        xpath=//a[contains(.,"Edit")]
    wait until page does not contain element        xpath=//button[contains(.,"Cancel Order")]
    wait until page does not contain element        xpath=//button[contains(.,"Approve")]
-   wait element and click         xpath=//a[contains(.,"BACK TO ORDERS")]
+   wait element and click         xpath=//a[contains(.,"BACK")]
    reload page
    Logout Client
 
@@ -346,7 +347,7 @@ TC887 - Preparing (create order with "Pending Fulfillment" state as Staff User)
     Go To                         ${ADMIN}orders/salesorder/
     Login                      ${rand_staff}        12345678
     wait until page contains       Select sales order to change
-    Sleep                         5 sec
+    Sleep                         10 sec
     reload page
     Check Item in Search          ${client_order_2}
     show in table                 ${fs_order_cl_2}        ${client_order_2}                Pending Fulfillment        Pending fulfillment
@@ -357,7 +358,7 @@ TC849 - “Edit” action (Staff user)
    wait until page contains element          xpath=//a[contains(.,"Edit")]
    wait until page contains element         xpath=//button[contains(.,"Cancel Order")]
    wait until page contains element        xpath=//button[contains(.,"Regenerate")]
-   wait until page contains element       xpath=//a[contains(.,"BACK TO ORDERS")]
+   wait until page contains element       xpath=//a[contains(.,"BACK")]
    wait until page contains element       xpath=//a[contains(.,"More")]
    wait element and click             xpath=//a[contains(.,"Edit")]
    wait until page contains          Edit Order
@@ -390,7 +391,7 @@ TC849 - “Edit” action (Staff user)
     Show data in order             Shipping Exceptions	         Shipping Errors
     Show data in order             Sent To 3pl	                 NO
     Show data in order             Is Workshop	                 NO
-    wait element and click         xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait element and click         xpath=//a[contains(.,"BACK")]
     wait until page contains        Select sales order to change
 
 
@@ -417,7 +418,7 @@ TC852 - Preparing (create order with "Generating shipping labels" state as Staff
 
     reload page
     wait until page contains element       xpath=//a[contains(.,"More")]
-    wait element and click                  xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait element and click                  xpath=//a[contains(.,"BACK")]
     wait until page does not contain element     xpath=//a[contains(.,"Edit")]
 
 TC621 - Create item (cvs)
@@ -425,8 +426,7 @@ TC621 - Create item (cvs)
     set suite variable           ${sku_role}               ${sku}
     log to console               ${sku_role}
     ${include_sku}=              include sku for role          ${sku_role}
-    Check Item CSV Upload             for_roles_sku.csv       ${client_name}       Items Csv Upload
-    wait until page contains       Items Csv Upload
+    Check Item CSV Upload             for_roles_sku.csv       ${client_name}       Items Csv Upload    Items Csv Upload
     show buttons in bulk form           Valid 1    Invalid 0    All 1
     click element                  css=button.close > span
     wait element and click         xpath=//input[contains(@value,"Save Items Item Csv Upload")]
@@ -451,7 +451,7 @@ TC470 - Add stock adjustment for remove "out of stock" exception
    Go To                         ${ADMIN}stock_adjustment/stockadjustment/
    Login                         ${login_admin}        ${pass_admin}
    wait until page contains      Select stock adjustment to change
-   Add Stock Adjustment          ${sku_role}                    ${sku_role} -- Base Item
+   Add Stock Adjustment          ${sku_role}                    ${sku_role} -- Base Item      10
    ${status}=                     Get Id Adjustment         Draft
    log to console                 ${status}
    wait until page contains      The stock adjustment "${status}" was added successfully
@@ -512,7 +512,7 @@ TC823 - Preparing (create order with "Labels generated" state as Staff user - st
     Select Post Order              WMP YAMATO
     click button                      Save
     wait until page contains       Order Saved Successfully
-    wait element and click              xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait element and click              xpath=//a[contains(.,"BACK")]
 
     Go To                          ${ADMIN}crowd_funding/crowdfundingorder/
     wait element and click         xpath=//*[@class="row1"]//a[contains(.,"${crowd_}")]
@@ -532,7 +532,7 @@ TC854 - Preparing (create order with "Labels generated" state as Staff user - st
     wait until page contains element          xpath=//a[contains(.,"Edit")]
     wait until page contains element         xpath=//button[contains(.,"Cancel Order")]
     wait until page contains element        xpath=//button[contains(.,"Regenerate")]
-    wait until page contains element       xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element       xpath=//a[contains(.,"BACK")]
     wait until page contains element       xpath=//a[contains(.,"More")]
 
     show status order               Status              Pending Fulfillment
@@ -562,7 +562,7 @@ TC867 - Preparing (create order with "Sent to 3PL" state)
     wait until page contains element        xpath=//a[contains(.,"Edit")]
     wait until page contains element        xpath=//button[contains(.,"Send Warehouse Documents")]
     wait until page contains element        xpath=//button[contains(.,"Cancel Order")]
-    wait until page contains element        xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element        xpath=//a[contains(.,"BACK")]
     wait until page contains element        xpath=//a[contains(.,"More")]
 
 
@@ -590,6 +590,7 @@ TC867 - Preparing (create order with "Sent to 3PL" state)
 
 TC869 - “Edit” action (Staff user)
     Go To                        ${ADMIN}orders/salesorder/
+    Check Item in Search        ${client_order_2}
     wait element and click             xpath=//a[contains(.,"${client_order_2}")]
     Wait Element And Click                xpath=//a[contains(.,"Edit")]
     wait until page contains element      xpath=//button[contains(.,"Save")]
@@ -625,7 +626,7 @@ TC872 - “Sent warehouse documents” action (Staff user)
     wait until page does not contain element        xpath=//a[contains(.,"Edit")]
     wait until page does not contain element        xpath=//button[contains(.,"Send Warehouse Documents")]
     wait until page does not contain element        xpath=//button[contains(.,"Cancel Order")]
-    wait until page contains element        xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element        xpath=//a[contains(.,"BACK")]
     wait until page contains element        xpath=//a[contains(.,"More")]
     Sleep                              20 sec
     reload page
@@ -634,7 +635,7 @@ TC872 - “Sent warehouse documents” action (Staff user)
     wait until page contains element       xpath=//a[contains(.,"Edit")]
     wait until page contains element        xpath=//button[contains(.,"Send Warehouse Documents")]
     wait until page contains element        xpath=//button[contains(.,"Cancel Order")]
-    wait until page contains element        xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element        xpath=//a[contains(.,"BACK")]
     wait until page contains element        xpath=//a[contains(.,"More")]
     Logout Client
 
@@ -668,7 +669,7 @@ TC874 - Preparing (create order with "Fulfilled" state)
     wait until page does not contain element         xpath=//button[contains(.,"Cancel Order")]
     wait until page contains element        xpath=//a[contains(.,"Tracking Info")]
     wait until page does not contain element        xpath=//button[contains(.,"Regenerate")]
-    wait until page contains element       xpath=//a[contains(.,"BACK TO ORDERS")]
+    wait until page contains element       xpath=//a[contains(.,"BACK")]
     wait until page contains element       xpath=//a[contains(.,"More")]
     #wait element and click             xpath=//a[contains(.,"Edit")]
 
@@ -691,10 +692,10 @@ TC875 - “Edit” action (Client) after Fulfilled
      wait element and click            xpath=//a[contains(.,"${client_order_2}")]
 
      wait until page contains element        xpath=//a[contains(.,"Tracking Info")]
-     wait until page contains element        xpath=//a[contains(.,"BACK TO ORDERS")]
+     wait until page contains element        xpath=//a[contains(.,"BACK")]
      wait until page does not contain element        xpath=//a[contains(.,"Edit")]
      show status order               Status              Fulfilled
-     wait element and click                      xpath=//a[contains(.,"BACK TO ORDERS")]
+     wait element and click                      xpath=//a[contains(.,"BACK")]
      Show data in order                ${client_order_2}                 Fulfilled
 
 TC885 - Check Tracking info (Client)

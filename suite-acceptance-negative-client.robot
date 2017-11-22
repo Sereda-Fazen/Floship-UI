@@ -41,6 +41,7 @@ TC523,TC524, TC526 - Create password as a user
     Capture Page Screenshot             ${TEST NAME}-{index}.png
 
 TC525 - Create password as a user - Invalid passwords
+    [Tags]                             InvalidPass
     Invalid Email - Reset Password      test@test                Enter a valid email address
 
 TC527 - Create password as a user - Success
@@ -54,22 +55,15 @@ TC527 - Create password as a user - Success
     ${LATEST}=	             Wait for Mail	        	    recipient=${REG_EMAIL}	       timeout=150
     ${body}=	             get email body	       ${LATEST}
     #log to console           ${body}
-    ${pass_link}=	             Get Mail link Gmail 	      ${body}
+    ${pass_link}=	             Get Mail link Gmail  	      ${body}    /password/reset       \r\n      ${SERVER}/password/reset
     log to console           ${pass_link}
     Delete Email                         ${LATEST}
     Close Mailbox
-
-
-
     Go To                               ${pass_link}
-    Reset Password                      Enter new password      12345678        12345               The two password fields didn't match
     Reset Password                      Enter new password      ${reset_pass}       ${reset_pass}             Password reset complete
     set suite variable                  ${REG PASS}             ${reset_pass}
     Click Element                       ${Log in}
     Wait Until Page Contains Element    xpath=//h3[contains(.,"Login")]
-    Login                               ${REG_EMAIL}         qw1as2zx3po
-    wait until page contains            Login or password incorrect
-    Capture Page Screenshot             ${TEST NAME}-{index}.png
     Login                               ${REG EMAIL}        ${REG PASS}
     wait until page contains            Company Details
     wait until page contains            Company Address
@@ -407,7 +401,9 @@ TC320,TC321 - Click "Add Shipping Option" button
     Header link                         Shipping Options
     Empty Fields Shipping               Add Shipping Option
     Save
-    wait error this is required    som            shipping_option                             This field is required
+
+TC1146 - Add SO without Name
+    wait until page does not contain element    xpath=//*[@ng-model="$ctrl.som.shipping_option"]/..//li[contains(.,"This field is required")]
     wait error this is required    som            courier_service                     This field is required
     wait error this is required    som            country                                This field is required
 
@@ -422,7 +418,7 @@ TC322 - Add new Shipping Option - Enter data (valid)
     log to console                     ${ship_op}
     reload page
     #Valid Data Shipping                ${long_symbols_255}           WMP YAMATO
-    Valid Data Shipping                ${ship_op}           WMP YAMATO
+    Valid Data Shipping                ${ship_op}     ${select_all}       WMP YAMATO
     set suite variable                 ${edit_ship}         ${ship_op}
 
 TC831 - Edit Shipping Option
@@ -528,7 +524,7 @@ TC598 - Add new order- Enter data (long string)
     wait error this is required       order     shipping_address.phone                      Phone number can have up to 21 characters
     wait error this is required       order     client_po                              Ensure this field has no more than 255 characters
 
-TC332 - Add new order- Empty fields
+TC332 - Add new order (invalid data)
     reload page
     Invalid Data Order
     wait error this is required     order     shipping_address.phone             Phone number must have at least 7 characters
@@ -1052,7 +1048,8 @@ TC421 - Order bulk upload: missing 1 column (OrderID)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload     order     3_missing_1_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['OrderID']
+    wait until page contains            Missed headers                 50 sec
+    wait until page contains            OrderID
     click button                        Remove
 
     # Miss Desc
@@ -1060,7 +1057,8 @@ TC422 - Order bulk upload: missing column (Insurance Value (in USD))
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order        3_missing_2_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Insurance Value (in USD)']
+    wait until page contains            Missed headers                 50 sec
+    wait until page contains            Insurance Value (in USD)
     click button                        Remove
 
     # Miss Brand
@@ -1068,7 +1066,8 @@ TC423 - Order bulk upload: missing column (Company)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload     order      3_missing_3_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Company']
+    wait until page contains            Missed headers                50 sec
+    wait until page contains            Company
     click button                        Remove
 
     # Miss UPC
@@ -1076,7 +1075,8 @@ TC424 - Order bulk upload: missing column (Contact Name)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order       3_missing_4_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Contact Name']
+    wait until page contains            Missed headers              50 sec
+    wait until page contains            Contact Name
     click button                        Remove
 
     # Miss Code
@@ -1084,7 +1084,8 @@ TC425 - Order bulk upload: missing column (Address 1)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_5_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Address 1']
+    wait until page contains            Missed headers                 50 sec
+    wait until page contains            Address 1
     click button                        Remove
 
     # Miss Weight
@@ -1092,7 +1093,8 @@ TC426 - Order bulk upload: missing column (Address 2)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_6_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Address 2']
+    wait until page contains            Missed_headers                 50 sec
+    wait until page contains            Address 2
     click button                        Remove
 
     # Miss length
@@ -1100,7 +1102,8 @@ TC427 - Order bulk upload: missing column (City)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_7_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['City']
+    wait until page contains            Missed headers               50 sec
+    wait until page contains            City
     click button                        Remove
 
     # Miss width
@@ -1108,56 +1111,64 @@ TC428 - Order bulk upload: missing column (State)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_8_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['State']
+    wait until page contains            Missed headers                50 sec
+    wait until page contains            State
     click button                        Remove
 
 TC429 - Order bulk upload: missing column (Zip Code)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_9_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Zip Code']
+    wait until page contains            Missed headers                50 sec
+    wait until page contains            Zip Code
     click button                        Remove
 
 TC430 - Order bulk upload: missing column (Country Code* (2-letter))
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_10_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Country Code (2-letter)']
+    wait until page contains            Missed headers                50 sec
+    wait until page contains            Country Code (2-letter)
     click button                        Remove
 
 TC431 - Order bulk upload: missing column (Phone)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_11_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Phone']
+    wait until page contains            Missed headers                50 sec
+    wait until page contains            Phone
     click button                        Remove
 
 TC432 - Order bulk upload: missing column (Email)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_12_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Email']
+    wait until page contains            Missed headers                50 sec
+    wait until page contains            Email
     click button                        Remove
 
 TC433 - Order bulk upload: missing column (Unit Value (in USD))
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_13_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Unit Value (in USD)']
+    wait until page contains            Missed headers              50 sec
+    wait until page contains            Unit Value (in USD)
     click button                        Remove
 
 TC434 - Order bulk upload: missing column (Shipping Option)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_14_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Shipping Option']
+    wait until page contains            Missed headers               50 sec
+    wait until page contains            Shipping Option
     click button                        Remove
 
 TC435 - Order bulk upload: missing column (Quantity)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_15_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Quantity']
+    wait until page contains            Missed headers             50 sec
+    wait until page contains            Quantity
     click button                        Remove
 
 
@@ -1165,14 +1176,16 @@ TC436 - Order bulk upload: missing column (Item SKU)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_16_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Item SKU']
+    wait until page contains            Missed headers            50 sec
+    wait until page contains            Item SKU
     click button                        Remove
 
 TC437 - Order bulk upload: missing column (Packaging Item)
     Go To                               ${SERVER}/orders/bulk
     Bulk Upload                         Order Bulk Upload    order      3_missing_17_column.xlsx
     wait until page contains            File uploaded successfully
-    wait until page contains            Missing_headers: ['Packaging Item']
+    wait until page contains            Missed_headers             50 sec
+    wait until page contains            Packaging Item
     click button                        Remove
 
 TC438 - TC439 - Order bulk upload: file with invalid data

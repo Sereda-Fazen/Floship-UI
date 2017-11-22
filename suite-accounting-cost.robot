@@ -162,7 +162,7 @@ TC1067 - Preparation. Step 1- Create order
     Go To                                  ${SERVER}/orders
     wait element and click             xpath=//a[contains(.,"Add Order")]
     wait until page contains            New Order
-    Valid Data Order          ${id_order_cli}   WMP YAMATO    ${client_sku}     ${client_sku}   Base Item
+    Valid Data Order          ${id_order_cli}   WMP YAMATO    ${country}  ${client_sku}     ${client_sku}   Base Item
     wait until page contains             Order Saved Successfully
     Go To                                ${SERVER}/orders
     show order is created                ${id_order_cli}          WMP YAMATO        Pending Approval          Out of stock
@@ -175,7 +175,7 @@ TC1067 - Preparation. Step 1- Create order
    Go To                         ${ADMIN}stock_adjustment/stockadjustment/
    Login                         ${login_admin}        ${pass_admin}
    wait until page contains      Select stock adjustment to change
-   Add Stock Adjustment          ${client_sku}                    ${client_sku} -- Base Item
+   Add Stock Adjustment          ${client_sku}                    ${client_sku} -- Base Item     10
    ${status}=                     Get Id Adjustment         Draft
    log to console                 ${status}
    wait until page contains      The stock adjustment "${status}" was added successfully
@@ -273,7 +273,7 @@ TC601 - Check values for updated sales order
     Sales Order Cost in Table                  ${fs_order_cl}      10.00              4.20          3.10      	7.30        	2.70
     Open Check Order                ${fs_order_cl}
     Summary block (Order)              Pick and Pack                $ 10.00
-    Summary block (Order)              Estimated	                $ 109.55
+    Summary block (Order)              Estimated	                $ 0.00
     wait until page contains element    xpath=//div[@class="panel-body"][contains(.,"Actual Weight") and contains(.,"7")]
     wait until page contains element    xpath=//div[@class="panel-body"][contains(.,"Total") and contains(.,"$ 10.00")]
 
