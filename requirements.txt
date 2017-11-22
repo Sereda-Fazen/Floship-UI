@@ -1,4 +1,4 @@
 robotframework
-robotframework-seleniuml2ibrary
+robotframework-seleniumlibrary
 robotframework-xvfb
 robotframework-imaplibrary
