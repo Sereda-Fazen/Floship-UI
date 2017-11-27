@@ -1,4 +1,4 @@
 robotframework
 robotframework-xvfb
 robotframework-imaplibrary
-pip install -U https://github.com/HelioGuilherme66/robotframework-selenium2library/archive/v1.8.0b1.tar.gz
+pip3 install https://github.com/HelioGuilherme66/robotframework-selenium2library/archive/v1.8.0b1.tar.gz
