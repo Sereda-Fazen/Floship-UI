@@ -1,4 +1,4 @@
 robotframework
 robotframework-xvfb
 robotframework-imaplibrary
-pip install --upgrade --pre robotframework-selenium2library
+
